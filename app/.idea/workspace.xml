@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2c9b4d4c-52cd-4809-8171-ece45751164c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/test/BerandaFragment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/test/KeamananFragment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/test/MainActivity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/test/MenuFragment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/test/MetodePembayaranFragment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/test/PengaturanFragment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/test/PesananFragment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/test/ProfilFragment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/test/TentangKamiFragment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/backarrow.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/bintang.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/blackarrow.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/boxicons_cart.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/boxicons_cart_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/boxicons_cart_11.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/boxicons_cart_12.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/boxicons_cart_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/boxicons_cart_3.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/boxicons_cart_4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/boxicons_cart_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/boxicons_cart_6.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/boxicons_cart_7.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/changepassicon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/checklist.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_11.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_12.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_13.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_14.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_15.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_16.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_17.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_18.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_19.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_20.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_21.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_3.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_6.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_7.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_8.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_9.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_gray.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/codicon_home_red.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/deleteicon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/dineinlogo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/discount.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/editicon.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/exitakun.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/home.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_10.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_11.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_12.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_13.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_14.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_15.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_16.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_17.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_18.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_19.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_21.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_22.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_23.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_24.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_25.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_26.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_27.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_28.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_29.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_3.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_6.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_7.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_8.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_9.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_facebook.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_google.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_park_outline_like.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_park_outline_like_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_park_outline_like_11.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_park_outline_like_12.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_park_outline_like_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_park_outline_like_3.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_park_outline_like_4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_park_outline_like_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_park_outline_like_6.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_park_outline_like_7.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_solid_eye_off.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_solid_eye_off_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/icon_solid_eye_off_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/iconaboutus.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/iconamoon_location_light.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/iconayamgoreng.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/iconkeamanan.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/iconlokasi.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/iconminuman.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/iconnasigoreng.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/iconpembayaransetting.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/iconpengaturan.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/iconsate.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/locationmark.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/makanansate.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/map.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/menumakan.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/more.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/nasigorengdewa.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/nasigorengpakkumis.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/nav_selector.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/nightmodeicon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/notification.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/pesanan.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/pesananred.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/popupkonfirmasi.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/profile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/profilekanan.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/radix_icons_magnifying_glass.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/radix_icons_magnifying_glass_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/redarrow.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/rednotez.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/sate.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/servicecenter.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/sopbuntut.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/switchonofficon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/tapilemon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/warungsatesenayan.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/drawable/yellowarrowfoward.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/layout/activity_main.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/layout/activity_pengaturan.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/layout/activity_tentang_kami.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/layout/fragment_beranda.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/layout/fragment_menu.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/layout/fragment_pesanan.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/layout/fragment_profil.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/res/menu/button_nav_menu.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/test/Beranda.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/test/KeamananAkun.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/test/LoginScreenIN.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/test/LoginScreenIN.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/test/LokasiResotran.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/test/LokasiFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/test/Menu1.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/test/Pembayaran.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/test/Pembayaran.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/test/StatusPesanan.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_beranda.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_checkout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/activity_checkout.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_keamanan_akun.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/activity_keamanan_akun.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_konfirmasi.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/activity_konfirmasi.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_log_screen.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/activity_log_screen.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_login_screen.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/activity_login_screen.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_login_screen2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/activity_login_screen2.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_lokasi_resotran.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/activity_lokasi_restoran.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_menu1.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_pembayaran.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/activity_metodepembayaran.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_status_pesanan.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_status_pesanan2_confirm.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/activity_status_pesanan2_confirm.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 3
+}]]></component>
+  <component name="ProjectId" id="3CywprtDcUJjXarjKzlUCdXOBoT" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "android.gradle.sync.needed": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/liaur/AndroidStudioProjects/PABUTS/app"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2c9b4d4c-52cd-4809-8171-ece45751164c" name="Changes" comment="" />
+      <created>1777371303492</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1777371303492</updated>
+    </task>
+    <servers />
+  </component>
+</project>
