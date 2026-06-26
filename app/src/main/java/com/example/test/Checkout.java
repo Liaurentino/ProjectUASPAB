@@ -1,7 +1,10 @@
 package com.example.test;
 
+import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
@@ -25,7 +28,8 @@ public class Checkout extends AppCompatActivity {
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("Pressed");
+                Intent intent = new Intent(Checkout.this, Konfirmasi.class);
+                startActivity(intent);
             }
         });
     }

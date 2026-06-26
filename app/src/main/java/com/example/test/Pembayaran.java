@@ -12,7 +12,7 @@ public class Pembayaran extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pembayaran);
+        setContentView(R.layout.activity_metodepembayaran);
 
         ImageView img1 = findViewById(R.id.rjccj14873);
         ImageView img2 = findViewById(R.id.rmwpskrixvof);

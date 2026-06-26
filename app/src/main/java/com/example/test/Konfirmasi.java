@@ -1,8 +1,12 @@
 package com.example.test;
 
+import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 
@@ -14,20 +18,32 @@ public class Konfirmasi extends AppCompatActivity {
         setContentView(R.layout.activity_konfirmasi);
 
         Glide.with(this).load("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/nKZicTJByZ/nydrv4o9_expires_30_days.png").into((ImageView) findViewById(R.id.ruujtneij4rr));
-        Glide.with(this).load("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/nKZicTJByZ/lmpiaf65_expires_30_days.png").into((ImageView) findViewById(R.id.rddy491pwd1p));
-        Glide.with(this).load("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/nKZicTJByZ/exunqjsi_expires_30_days.png").into((ImageView) findViewById(R.id.ru9fu5p009jf));
-        Glide.with(this).load("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/nKZicTJByZ/mqv3c3kc_expires_30_days.png").into((ImageView) findViewById(R.id.rvg6uoz7klzl));
-        Glide.with(this).load("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/nKZicTJByZ/u677ku9f_expires_30_days.png").into((ImageView) findViewById(R.id.rnca2cynscwh));
-        Glide.with(this).load("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/nKZicTJByZ/vxjs3r7o_expires_30_days.png").into((ImageView) findViewById(R.id.rk7gyoz68adj));
-        Glide.with(this).load("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/nKZicTJByZ/934wxzwg_expires_30_days.png").into((ImageView) findViewById(R.id.r1y1k56anw6t));
-        Glide.with(this).load("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/nKZicTJByZ/86bcdw8n_expires_30_days.png").into((ImageView) findViewById(R.id.rcoiwzj8p7x));
 
-        View button1 = findViewById(R.id.ra1a2kvn81qh);
-        button1.setOnClickListener(new View.OnClickListener() {
+        // Tombol KEMBALI → ke MainActivity yang menampilkan MenuFragment
+        LinearLayout btnKonfirmasi = findViewById(R.id.btnKonfirmasi);
+        btnKonfirmasi.setOnClickListener(v -> {
+            Intent intent = new Intent(Konfirmasi.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        });
+
+        // Pop up langsung muncul saat halaman dibuka
+        Dialog dialog = new Dialog(Konfirmasi.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_popup);
+
+        ImageView imgPopup = dialog.findViewById(R.id.imgPopup);
+        imgPopup.setImageResource(R.drawable.popupkonfirmasi);
+
+        View btnOk = dialog.findViewById(R.id.btnOkDialog);
+        btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("Pressed");
+                dialog.dismiss();
             }
         });
+
+        dialog.show();
     }
 }
