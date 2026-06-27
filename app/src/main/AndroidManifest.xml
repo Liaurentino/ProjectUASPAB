@@ -16,25 +16,14 @@
         android:theme="@style/Theme.Test">
 
         <activity
-            android:name=".SplashScreen"
-            android:exported="true">
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Test">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".MainActivity" android:exported="false"/>
-        <activity android:name=".Login" android:exported="false"/>
-        <activity android:name=".LoginScreenIN" android:exported="false"/>
-        <activity android:name=".LoginScreen2" android:exported="false"/>
-        <activity android:name=".Checkout" android:exported="false"/>
-        <activity android:name=".Konfirmasi" android:exported="false"/>
-        <activity android:name=".Menu2" android:exported="false"/>
-        <activity android:name=".Menu3" android:exported="false"/>
-        <activity android:name=".Menu4" android:exported="false"/>
-        <activity android:name=".Pembayaran" android:exported="false"/>
-        <activity android:name=".StatusPesanan2Confirm" android:exported="false"/>
 
     </application>
 
