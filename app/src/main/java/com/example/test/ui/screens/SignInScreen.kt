@@ -1,6 +1,8 @@
 package com.example.test.ui.screens
 
+import android.app.Activity
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,16 +20,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import com.example.test.ui.viewmodel.OrderViewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,14 +59,18 @@ import com.example.test.ui.theme.PrimaryRed
 
 @Composable
 fun SignInScreen(
-    onSignInSuccess: (String) -> Unit,
+    viewModel: OrderViewModel,
+    onSignInSuccess: () -> Unit,
     onNavigateToSignUp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var name by remember { mutableStateOf("") }
+    val activity = context as? Activity
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+    var isGoogleLoading by remember { mutableStateOf(false) }
 
     val bgResId = ResourceHelper.getDrawableResId(context, "tees")
     val logoResId = ResourceHelper.getDrawableResId(context, "dineinlogo")
@@ -88,7 +98,7 @@ fun SignInScreen(
                 )
         )
 
-        // Scrollable/Flexible Content Container
+        // Content
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -122,13 +132,14 @@ fun SignInScreen(
 
             Spacer(modifier = Modifier.weight(0.2f))
 
-            // Input Fields
+            // Email Input
             OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Nama Lengkap", color = Color.White.copy(alpha = 0.6f)) },
-                leadingIcon = { Icon(Icons.Default.Person, contentDescription = "User Icon", tint = Color.White) },
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email", color = Color.White.copy(alpha = 0.6f)) },
+                leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email Icon", tint = Color.White) },
                 singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.White,
                     unfocusedTextColor = Color.White,
@@ -137,18 +148,20 @@ fun SignInScreen(
                     cursorColor = PrimaryOrange
                 ),
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading && !isGoogleLoading
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Password Input
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Password", color = Color.White.copy(alpha = 0.6f)) },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Lock Icon", tint = Color.White) },
                 trailingIcon = {
-                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }, enabled = !isLoading) {
                         Icon(
                             imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = "Toggle password visibility",
@@ -167,19 +180,20 @@ fun SignInScreen(
                     cursorColor = PrimaryOrange
                 ),
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading && !isGoogleLoading
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Sign In Button
             Button(
                 onClick = {
-                    val trimmedName = name.trim()
+                    val trimmedEmail = email.trim()
                     val trimmedPassword = password.trim()
 
-                    if (trimmedName.isEmpty()) {
-                        Toast.makeText(context, "Nama tidak boleh kosong!", Toast.LENGTH_SHORT).show()
+                    if (trimmedEmail.isEmpty()) {
+                        Toast.makeText(context, "Email tidak boleh kosong!", Toast.LENGTH_SHORT).show()
                         return@Button
                     }
                     if (trimmedPassword.isEmpty()) {
@@ -191,19 +205,105 @@ fun SignInScreen(
                         return@Button
                     }
 
-                    Toast.makeText(context, "Login Berhasil", Toast.LENGTH_SHORT).show()
-                    onSignInSuccess(trimmedName)
+                    isLoading = true
+                    viewModel.signInWithSupabase(
+                        emailInput = trimmedEmail,
+                        passwordInput = trimmedPassword,
+                        onSuccess = {
+                            isLoading = false
+                            onSignInSuccess()
+                        },
+                        onError = { errorMsg ->
+                            isLoading = false
+                            Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                        }
+                    )
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = PrimaryRed,
                     contentColor = Color.White
                 ),
                 shape = RoundedCornerShape(12.dp),
+                enabled = !isLoading && !isGoogleLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
             ) {
-                Text(text = "Sign In", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                if (isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
+                    Text(text = "Sign In", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Divider "atau"
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                HorizontalDivider(
+                    modifier = Modifier.weight(1f),
+                    color = Color.White.copy(alpha = 0.3f)
+                )
+                Text(
+                    text = "  atau  ",
+                    color = Color.White.copy(alpha = 0.5f),
+                    fontSize = 13.sp
+                )
+                HorizontalDivider(
+                    modifier = Modifier.weight(1f),
+                    color = Color.White.copy(alpha = 0.3f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Google Sign In Button
+            OutlinedButton(
+                onClick = {
+                    if (activity == null) {
+                        Toast.makeText(context, "Tidak bisa mendapatkan Activity", Toast.LENGTH_SHORT).show()
+                        return@OutlinedButton
+                    }
+                    isGoogleLoading = true
+                    viewModel.signInWithGoogle(
+                        activityContext = activity,
+                        onSuccess = {
+                            isGoogleLoading = false
+                            onSignInSuccess()
+                        },
+                        onError = { errorMsg ->
+                            isGoogleLoading = false
+                            Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                        }
+                    )
+                },
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.5f)),
+                enabled = !isLoading && !isGoogleLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            ) {
+                if (isGoogleLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
+                    Text(
+                        text = "G",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "Sign In with Google",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.weight(0.5f))

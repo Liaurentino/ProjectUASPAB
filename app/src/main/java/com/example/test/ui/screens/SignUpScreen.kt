@@ -23,11 +23,13 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import com.example.test.ui.viewmodel.OrderViewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,7 +55,8 @@ import com.example.test.ui.theme.PrimaryRed
 
 @Composable
 fun SignUpScreen(
-    onSignUpSuccess: (String, String) -> Unit,
+    viewModel: OrderViewModel,
+    onSignUpSuccess: () -> Unit,
     onNavigateToSignIn: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -62,6 +65,7 @@ fun SignUpScreen(
     var name by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
     val bgResId = ResourceHelper.getDrawableResId(context, "tees")
     val logoResId = ResourceHelper.getDrawableResId(context, "dineinlogo")
@@ -139,7 +143,8 @@ fun SignUpScreen(
                     cursorColor = PrimaryOrange
                 ),
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -159,7 +164,8 @@ fun SignUpScreen(
                     cursorColor = PrimaryOrange
                 ),
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -171,7 +177,7 @@ fun SignUpScreen(
                 label = { Text("Password", color = Color.White.copy(alpha = 0.6f)) },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Lock Icon", tint = Color.White) },
                 trailingIcon = {
-                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }, enabled = !isLoading) {
                         Icon(
                             imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = "Toggle password visibility",
@@ -190,7 +196,8 @@ fun SignUpScreen(
                     cursorColor = PrimaryOrange
                 ),
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -215,19 +222,37 @@ fun SignUpScreen(
                         return@Button
                     }
 
-                    Toast.makeText(context, "Registrasi Berhasil!", Toast.LENGTH_SHORT).show()
-                    onSignUpSuccess(trimmedName, trimmedEmail)
+                    isLoading = true
+                    viewModel.signUpWithSupabase(
+                        emailInput = trimmedEmail,
+                        passwordInput = trimmedPassword,
+                        nameInput = trimmedName,
+                        onSuccess = {
+                            isLoading = false
+                            Toast.makeText(context, "Registrasi Berhasil!", Toast.LENGTH_SHORT).show()
+                            onSignUpSuccess()
+                        },
+                        onError = { errorMsg ->
+                            isLoading = false
+                            Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                        }
+                    )
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = PrimaryRed,
                     contentColor = Color.White
                 ),
                 shape = RoundedCornerShape(12.dp),
+                enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
             ) {
-                Text(text = "Sign Up", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                if (isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
+                    Text(text = "Sign Up", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
             }
 
             Spacer(modifier = Modifier.weight(0.4f))

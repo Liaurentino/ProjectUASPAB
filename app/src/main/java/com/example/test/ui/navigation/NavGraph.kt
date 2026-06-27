@@ -54,8 +54,8 @@ fun AppNavGraph(
 
         composable(Screen.SignIn.route) {
             SignInScreen(
-                onSignInSuccess = { name ->
-                    viewModel.setUserName(name)
+                viewModel = viewModel,
+                onSignInSuccess = {
                     navController.navigate(Screen.Main.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
@@ -70,9 +70,8 @@ fun AppNavGraph(
 
         composable(Screen.SignUp.route) {
             SignUpScreen(
-                onSignUpSuccess = { name, email ->
-                    viewModel.setUserName(name)
-                    viewModel.setUserEmail(email)
+                viewModel = viewModel,
+                onSignUpSuccess = {
                     navController.navigate(Screen.Main.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
