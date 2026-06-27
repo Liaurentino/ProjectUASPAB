@@ -15,7 +15,7 @@
 		<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="Profil"
+			android:text="Keamanan Akun"
 			android:textColor="#FFD700"
 			android:textSize="20sp"
 			android:textStyle="bold"/>
@@ -152,7 +152,7 @@
 								android:id="@+id/rx9xet1tifu"
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
-								android:layout_marginBottom="270dp"
+								android:layout_marginBottom="24dp"
 								android:layout_marginHorizontal="23dp"
 								android:orientation="horizontal"
 								android:gravity="center_vertical">
