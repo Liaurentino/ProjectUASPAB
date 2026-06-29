@@ -20,6 +20,7 @@ import com.example.test.ui.screens.SignUpScreen
 import com.example.test.ui.screens.SplashScreen
 import com.example.test.ui.screens.StatusPesananScreen
 import com.example.test.ui.screens.TentangKamiScreen
+import com.example.test.ui.screens.EditProfilScreen
 import com.example.test.ui.viewmodel.OrderViewModel
 
 @Composable
@@ -93,6 +94,8 @@ fun AppNavGraph(
             )
         }
 
+
+
         composable(Screen.Checkout.route) {
             CheckoutScreen(
                 cartItems = uiState.cartItems,
@@ -102,21 +105,13 @@ fun AppNavGraph(
                 },
                 onPlaceOrder = {
                     viewModel.placeOrder()
-                    navController.navigate("konfirmasi") {
+                },
+                onOrderConfirmed = {
+                    navController.navigate(Screen.Main.route) {
                         popUpTo(Screen.Checkout.route) { inclusive = true }
                     }
                 },
                 onBackClicked = { navController.popBackStack() }
-            )
-        }
-
-        composable("konfirmasi") {
-            KonfirmasiScreen(
-                onBackToMenu = {
-                    navController.navigate(Screen.Main.route) {
-                        popUpTo("konfirmasi") { inclusive = true }
-                    }
-                }
             )
         }
 
@@ -134,7 +129,12 @@ fun AppNavGraph(
         }
 
         composable(Screen.Pengaturan.route) {
-            PengaturanScreen(onBackClicked = { navController.popBackStack() })
+            PengaturanScreen(
+                onBackClicked = { navController.popBackStack() },
+                onNavigateToEditProfil = {
+                    navController.navigate(Screen.EditProfil.route)
+                }
+            )
         }
 
         composable(Screen.Keamanan.route) {
@@ -155,6 +155,36 @@ fun AppNavGraph(
 
         composable(Screen.TentangKami.route) {
             TentangKamiScreen(onBackClicked = { navController.popBackStack() })
+        }
+
+        composable(Screen.EditProfil.route) {
+            EditProfilScreen(
+                userName = uiState.userName,
+                userEmail = uiState.userEmail,
+                profileImageUrl = uiState.profileImageUrl,
+                isUploadingImage = uiState.isUploadingProfileImage,
+
+                onSave = { newName ->
+                    viewModel.updateProfile(
+                        newName,
+                        onSuccess = {},
+                        onError = {}
+                    )
+                },
+
+                onUploadImage = { imageBytes, extension ->
+                    viewModel.uploadProfileImage(
+                        imageBytes = imageBytes,
+                        fileExtension = extension,
+                        onSuccess = {},
+                        onError = {}
+                    )
+                },
+
+                onBackClicked = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

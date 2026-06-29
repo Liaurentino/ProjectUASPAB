@@ -55,12 +55,26 @@ import com.example.test.ui.theme.PrimaryOrange
 import com.example.test.ui.theme.PrimaryRed
 import com.example.test.ui.theme.SuccessGreen
 
+import androidx.compose.runtime.*
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+
 fun PengaturanScreen(
+    onNavigateToEditProfil: () -> Unit,
     onBackClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var isNotificationOn by remember { mutableStateOf(true) }
+    var language by remember { mutableStateOf("Bahasa Indonesia") }
+    var showLanguageDialog by remember { mutableStateOf(false) }
+    var showHelpDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -89,19 +103,84 @@ fun PengaturanScreen(
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 Column {
-                    SettingOptionItem(title = "Ubah Profil", subtitle = "Nama, foto, detail kontak")
+                    SettingOptionItem(
+                        title = "Ubah Profil",
+                        subtitle = "Nama, foto, detail kontak",
+                        onClick = onNavigateToEditProfil
+                    )
                     Divider(color = Color(0xFFF5F5F5))
-                    SettingOptionItem(title = "Notifikasi", subtitle = "Atur pengingat makanan & promo")
+                    SettingSwitchItem(
+                        title = "Notifikasi",
+                        subtitle = "Atur pengingat makanan & promo",
+                        isChecked = isNotificationOn,
+                        onCheckedChange = { isNotificationOn = it }
+                    )
                     Divider(color = Color(0xFFF5F5F5))
-                    SettingOptionItem(title = "Bahasa", subtitle = "Bahasa Indonesia")
+                    SettingOptionItem(
+                        title = "Bahasa",
+                        subtitle = language,
+                        onClick = { showLanguageDialog = true }
+                    )
                     Divider(color = Color(0xFFF5F5F5))
-                    SettingOptionItem(title = "Bantuan & FAQ", subtitle = "Hubungi pusat bantuan")
+                    SettingOptionItem(
+                        title = "Bantuan & FAQ",
+                        subtitle = "Hubungi pusat bantuan",
+                        onClick = { showHelpDialog = true }
+                    )
                 }
             }
         }
+
+        if (showLanguageDialog) {
+            AlertDialog(
+                onDismissRequest = { showLanguageDialog = false },
+                title = { Text("Pilih Bahasa") },
+                text = {
+                    Column {
+                        Text(
+                            text = "Bahasa Indonesia",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    language = "Bahasa Indonesia"
+                                    showLanguageDialog = false
+                                }
+                                .padding(vertical = 12.dp)
+                        )
+                        Text(
+                            text = "English",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    language = "English"
+                                    showLanguageDialog = false
+                                }
+                                .padding(vertical = 12.dp)
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showLanguageDialog = false }) {
+                        Text("Batal", color = PrimaryRed)
+                    }
+                }
+            )
+        }
+
+        if (showHelpDialog) {
+            AlertDialog(
+                onDismissRequest = { showHelpDialog = false },
+                title = { Text("Bantuan & FAQ") },
+                text = { Text("Silakan hubungi kami di support@dinein.com atau via telepon di (021) 555-0199 untuk bantuan lebih lanjut.") },
+                confirmButton = {
+                    TextButton(onClick = { showHelpDialog = false }) {
+                        Text("Tutup", color = PrimaryRed)
+                    }
+                }
+            )
+        }
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KeamananScreen(
@@ -156,7 +235,7 @@ fun MetodePembayaranScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -229,7 +308,7 @@ fun LokasiRestoranScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -376,7 +455,7 @@ fun TentangKamiScreen(
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
-            
+
             Text(
                 text = "Version 1.0.0 (Premium Compose Edition)",
                 fontSize = 12.sp,
@@ -407,12 +486,13 @@ fun TentangKamiScreen(
 @Composable
 fun SettingOptionItem(
     title: String,
-    subtitle: String
+    subtitle: String,
+    onClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {}
+            .clickable { onClick() }
             .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -432,6 +512,36 @@ fun SettingOptionItem(
 }
 
 @Composable
+fun SettingSwitchItem(
+    title: String,
+    subtitle: String,
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(text = title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+            Text(text = subtitle, fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(top = 2.dp))
+        }
+        Switch(
+            checked = isChecked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = PrimaryRed
+            )
+        )
+    }
+}
+
+@Composable
 fun PaymentMethodItem(
     name: String,
     description: String,
@@ -440,7 +550,7 @@ fun PaymentMethodItem(
     onClick: () -> Unit
 ) {
     val context = LocalContext.current
-    
+
     Row(
         modifier = Modifier
             .fillMaxWidth()

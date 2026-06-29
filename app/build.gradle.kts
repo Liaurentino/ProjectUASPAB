@@ -70,7 +70,11 @@ dependencies {
     implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.postgrest)
     implementation(libs.supabase.gotrue)
+    implementation(libs.supabase.storage)
     implementation(libs.ktor.client.android)
+
+    // Image Loader
+    implementation(libs.coil.compose)
 
     // Google Credential Manager (for Google Sign-In)
     implementation(libs.credentials)

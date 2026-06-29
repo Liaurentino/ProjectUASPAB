@@ -10,6 +10,8 @@ import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
+import io.github.jan.supabase.storage.storage
+import java.util.UUID
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -93,10 +95,12 @@ data class UiState(
     val userName: String = "",
     val userEmail: String = "",
     val userLocation: String = "Jl. Thamrin, Jakarta Pusat",
+    val profileImageUrl: String = "",
     val cartItems: List<CartItem> = emptyList(),
     val activeOrderStatus: OrderStatus = OrderStatus.NONE,
     val selectedPaymentMethod: String = "E-Money",
     val isLoadingMenu: Boolean = false,
+    val isUploadingProfileImage: Boolean = false,
     val activeOrderId: String? = null
 )
 
@@ -128,8 +132,9 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
         val name = sharedPrefs.getString("user_name", "") ?: ""
         val email = sharedPrefs.getString("user_email", "") ?: ""
         val location = sharedPrefs.getString("user_location", "Jl. Thamrin, Jakarta Pusat") ?: "Jl. Thamrin, Jakarta Pusat"
+        val profileImageUrl = sharedPrefs.getString("profile_image_url", "") ?: ""
         _uiState.update {
-            it.copy(userName = name, userEmail = email, userLocation = location)
+            it.copy(userName = name, userEmail = email, userLocation = location, profileImageUrl = profileImageUrl)
         }
 
         // Fetch menu dari Supabase
@@ -158,7 +163,7 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 _menuList.value = items
                 Log.d(TAG, "Berhasil fetch ${items.size} menu dari Supabase")
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Log.e(TAG, "Gagal fetch menu dari Supabase, menggunakan data lokal", e)
                 _menuList.value = localMenuFallback
             } finally {
@@ -397,6 +402,81 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+    fun updateProfile(
+        newName: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val currentUser = SupabaseClient.client.auth.currentUserOrNull()
+                if (currentUser != null) {
+                    SupabaseClient.client.auth.updateUser {
+                        data = kotlinx.serialization.json.buildJsonObject {
+                            put("name", newName)
+                            put("full_name", newName)
+                        }
+                    }
+                }
+                setUserName(newName)
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e(TAG, "Update profile failed", e)
+                onError(e.message ?: "Update profil gagal.")
+            }
+        }
+    }
+
+    // =============================================================
+    // UPDATE: Upload foto profil ke Supabase Storage (bucket 'profileimages')
+    // =============================================================
+    fun uploadProfileImage(
+        imageBytes: ByteArray,
+        fileExtension: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isUploadingProfileImage = true) }
+            try {
+                // 1. Buat nama file unik menggunakan UUID, agar file lama tidak tertimpa cache CDN
+                val fileName = "${UUID.randomUUID()}.$fileExtension"
+
+                // 2. Upload ke bucket 'profileimages'
+                val bucket = SupabaseClient.client.storage.from("profileimages")
+
+                bucket.upload(
+                    path = fileName,
+                    data = imageBytes,
+                    upsert = true
+                )
+
+                // 3. Dapatkan Public URL
+                val publicUrl = bucket.publicUrl(path = fileName)
+
+                // 4. Update metadata user di Supabase Auth (kalau sedang login)
+                val currentUser = SupabaseClient.client.auth.currentUserOrNull()
+                if (currentUser != null) {
+                    SupabaseClient.client.auth.updateUser {
+                        data = buildJsonObject {
+                            put("avatar_url", publicUrl)
+                        }
+                    }
+                }
+
+                // 5. Simpan URL ke SharedPreferences & UiState
+                sharedPrefs.edit().putString("profile_image_url", publicUrl).apply()
+                _uiState.update { it.copy(profileImageUrl = publicUrl, isUploadingProfileImage = false) }
+
+                Log.d(TAG, "Foto profil berhasil diupload: $publicUrl")
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e(TAG, "Gagal upload foto profil", e)
+                _uiState.update { it.copy(isUploadingProfileImage = false) }
+                onError(e.message ?: "Gagal mengupload foto profil.")
+            }
+        }
+    }
 
     fun signInWithSupabase(
         emailInput: String,
@@ -412,11 +492,16 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 // Dapatkan user metadata setelah berhasil login
                 val currentUser = SupabaseClient.client.auth.currentUserOrNull()
-                val name = currentUser?.userMetadata?.get("name") as? String 
+                val name = currentUser?.userMetadata?.get("name") as? String
                     ?: emailInput.substringBefore("@")
-                
+                val avatarUrl = currentUser?.userMetadata?.get("avatar_url") as? String ?: ""
+
                 setUserName(name)
                 setUserEmail(emailInput)
+                if (avatarUrl.isNotEmpty()) {
+                    sharedPrefs.edit().putString("profile_image_url", avatarUrl).apply()
+                    _uiState.update { it.copy(profileImageUrl = avatarUrl) }
+                }
                 onSuccess()
             } catch (e: Exception) {
                 Log.e(TAG, "Sign In failed", e)
@@ -452,9 +537,16 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val credentialManager = androidx.credentials.CredentialManager.create(activityContext)
 
+                val rawNonce = java.util.UUID.randomUUID().toString()
+                val bytes = rawNonce.toByteArray()
+                val md = java.security.MessageDigest.getInstance("SHA-256")
+                val digest = md.digest(bytes)
+                val hashedNonce = digest.joinToString("") { "%02x".format(it) }
+
                 val googleIdOption = com.google.android.libraries.identity.googleid.GetGoogleIdOption.Builder()
                     .setServerClientId(SupabaseClient.GOOGLE_WEB_CLIENT_ID)
                     .setFilterByAuthorizedAccounts(false)
+                    .setNonce(hashedNonce)
                     .build()
 
                 val request = androidx.credentials.GetCredentialRequest.Builder()
@@ -477,6 +569,7 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
                     ) {
                         this.idToken = idToken
                         provider = io.github.jan.supabase.gotrue.providers.Google
+                        this.nonce = rawNonce
                     }
 
                     // Ambil info user setelah login berhasil
@@ -485,9 +578,14 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
                         ?: (currentUser?.userMetadata?.get("name") as? String)
                         ?: currentUser?.email?.substringBefore("@") ?: ""
                     val email = currentUser?.email ?: ""
+                    val avatarUrl = currentUser?.userMetadata?.get("avatar_url") as? String ?: ""
 
                     setUserName(name)
                     setUserEmail(email)
+                    if (avatarUrl.isNotEmpty()) {
+                        sharedPrefs.edit().putString("profile_image_url", avatarUrl).apply()
+                        _uiState.update { it.copy(profileImageUrl = avatarUrl) }
+                    }
                     onSuccess()
                 } else {
                     onError("Credential type tidak didukung.")
@@ -498,6 +596,53 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) {
                 Log.e(TAG, "Google Sign In failed", e)
                 onError(e.message ?: "Google Sign In gagal.")
+            }
+        }
+    }
+
+    // =============================================================
+    // CREATE: Menambahkan menu baru beserta upload gambar ke Storage
+    // =============================================================
+    fun uploadMenuWithImage(
+        name: String,
+        description: String,
+        price: Double,
+        imageBytes: ByteArray,
+        fileExtension: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                // 1. Buat nama file yang unik menggunakan UUID
+                val fileName = "${UUID.randomUUID()}.$fileExtension"
+
+                // 2. Upload gambar ke bucket 'menuimage'
+                val bucket = SupabaseClient.client.storage.from("menuimage")
+                bucket.upload(path = fileName, data = imageBytes)
+
+                // 3. Dapatkan Public URL
+                val publicUrl = bucket.publicUrl(path = fileName)
+
+                // 4. Buat objek DTO menu baru
+                val newMenuDto = MenuItemDto(
+                    id = UUID.randomUUID().toString(),
+                    name = name,
+                    description = description,
+                    price = price,
+                    imageResName = publicUrl // Simpan URL lengkap di kolom image_res_name
+                )
+
+                // 5. Insert ke tabel 'menu_items'
+                SupabaseClient.client.postgrest["menu_items"].insert(newMenuDto)
+
+                // 6. Refresh menu list
+                fetchMenuFromSupabase()
+
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e(TAG, "Gagal menambahkan menu baru dengan gambar", e)
+                onError(e.message ?: "Terjadi kesalahan tidak diketahui")
             }
         }
     }

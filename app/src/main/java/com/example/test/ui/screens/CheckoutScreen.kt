@@ -39,6 +39,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,8 +51,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import coil.compose.AsyncImage
 import com.example.test.ui.components.ResourceHelper
 import com.example.test.ui.theme.PrimaryOrange
 import com.example.test.ui.theme.PrimaryRed
@@ -62,11 +69,13 @@ fun CheckoutScreen(
     subtotal: Double,
     onQuantityChanged: (String, Int) -> Unit,
     onPlaceOrder: () -> Unit,
+    onOrderConfirmed: () -> Unit,
     onBackClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val shippingFee = 5000.0
+    var showConfirmDialog by remember { mutableStateOf(false) }
     val total = if (cartItems.isEmpty()) 0.0 else subtotal + shippingFee
 
     Scaffold(
@@ -252,7 +261,10 @@ fun CheckoutScreen(
                         .padding(24.dp)
                 ) {
                     Button(
-                        onClick = onPlaceOrder,
+                        onClick = {
+                            onPlaceOrder()
+                            showConfirmDialog = true
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = PrimaryRed),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
@@ -264,6 +276,64 @@ fun CheckoutScreen(
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    // Popup Konfirmasi Pesanan
+    if (showConfirmDialog) {
+        Dialog(onDismissRequest = {}) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val popupResId = ResourceHelper.getDrawableResId(context, "popupkonfirmasi")
+                    Image(
+                        painter = painterResource(id = popupResId),
+                        contentDescription = "Konfirmasi Pesanan",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.size(180.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Terima kasih! Tim kami sedang menyiapkan hidangan spesialmu. Mohon ditunggu sebentar, ya!",
+                        fontSize = 14.sp,
+                        color = PrimaryRed,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Button(
+                        onClick = {
+                            showConfirmDialog = false
+                            onOrderConfirmed()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryRed),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    ) {
+                        Text(
+                            text = "Konfirmasi",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFFD700)
                         )
                     }
                 }
@@ -291,15 +361,27 @@ fun CheckoutItemCard(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val imgResId = ResourceHelper.getDrawableResId(context, cartItem.menuItem.imageResName)
-            Image(
-                painter = painterResource(id = imgResId),
-                contentDescription = cartItem.menuItem.name,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(8.dp))
-            )
+            val isNetworkUrl = cartItem.menuItem.imageResName.startsWith("http")
+            if (isNetworkUrl) {
+                AsyncImage(
+                    model = cartItem.menuItem.imageResName,
+                    contentDescription = cartItem.menuItem.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                )
+            } else {
+                val imgResId = ResourceHelper.getDrawableResId(context, cartItem.menuItem.imageResName)
+                Image(
+                    painter = painterResource(id = imgResId),
+                    contentDescription = cartItem.menuItem.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                )
+            }
             Spacer(modifier = Modifier.width(16.dp))
             Column(
                 modifier = Modifier.weight(1f)

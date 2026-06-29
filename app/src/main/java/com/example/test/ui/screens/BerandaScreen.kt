@@ -163,9 +163,10 @@ fun BerandaScreen(
         // Promo Banner Section
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Promo Terhangat \uD83D\uDD25",
+            text = "Promo Terhangat",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
+            color = Color.Black,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
@@ -209,13 +210,13 @@ fun BerandaScreen(
                     )
                     Text(
                         text = "Nasi Goreng Dewa & Sate Ayam",
-                        color = Color.White,
+                        color = Color(0xFFFFD700),
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )
                     Text(
                         text = "Pesan sekarang & nikmati kelezatannya!",
-                        color = Color.White.copy(alpha = 0.8f),
+                        color = PrimaryOrange,
                         fontSize = 11.sp
                     )
                 }
@@ -228,6 +229,7 @@ fun BerandaScreen(
             text = "Kategori Menu",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
+            color = Color.Black,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
@@ -254,9 +256,10 @@ fun BerandaScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Paling Populer \u2B50",
+                text = "Paling Populer",
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
             )
             Text(
                 text = "Lihat Semua",

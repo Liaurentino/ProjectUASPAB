@@ -25,6 +25,7 @@ import com.example.test.ui.theme.PrimaryOrange
 import com.example.test.ui.theme.PrimaryRed
 import com.example.test.ui.viewmodel.MenuItem
 import com.example.test.ui.viewmodel.OrderViewModel
+import com.example.test.ui.navigation.Screen
 
 @Composable
 fun MainScreen(
@@ -94,6 +95,7 @@ fun MainScreen(
             3 -> ProfilScreen(
                 userName = uiState.userName,
                 userEmail = uiState.userEmail,
+                onNavigateToEditProfil = { onNavigateToSettings(Screen.EditProfil.route) },
                 onNavigateToSettings = onNavigateToSettings,
                 modifier = innerModifier
             )

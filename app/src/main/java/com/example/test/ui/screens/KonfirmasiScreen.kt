@@ -14,14 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,9 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import com.example.test.ui.components.ResourceHelper
-import com.example.test.ui.theme.PrimaryOrange
 import com.example.test.ui.theme.PrimaryRed
 
 @Composable
@@ -44,7 +36,6 @@ fun KonfirmasiScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var showDialog by remember { mutableStateOf(true) }
 
     Box(
         modifier = modifier
@@ -59,30 +50,30 @@ fun KonfirmasiScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Main Confirmed State Illustration
-            val bgResId = ResourceHelper.getDrawableResId(context, "tees")
+            val popupResId = ResourceHelper.getDrawableResId(context, "popupkonfirmasi")
             Image(
-                painter = painterResource(id = bgResId),
+                painter = painterResource(id = popupResId),
                 contentDescription = "Success Background",
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
-                    .size(200.dp)
+                    .size(240.dp)
                     .clip(RoundedCornerShape(16.dp))
             )
             
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
             
             Text(
-                text = "Pesanan Diterima!",
-                fontSize = 24.sp,
+                text = "Pesanan Berhasil Dibuat!",
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = Color.Black,
+                textAlign = TextAlign.Center
             )
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             
             Text(
-                text = "Koki kami sedang menyiapkan hidangan spesial Anda. Silakan lacak status pesanan di halaman Pesanan.",
+                text = "Silakan bersantai sejenak, pesanan Anda akan segera disiapkan oleh koki kami.",
                 fontSize = 14.sp,
                 color = Color.Gray,
                 textAlign = TextAlign.Center,
@@ -100,72 +91,11 @@ fun KonfirmasiScreen(
                     .height(56.dp)
             ) {
                 Text(
-                    text = "Kembali ke Menu",
+                    text = "Kembali ke Beranda",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
-            }
-        }
-
-        // Animated Confirmation Popup Dialog
-        if (showDialog) {
-            Dialog(onDismissRequest = { showDialog = false }) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(8.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        val popupResId = ResourceHelper.getDrawableResId(context, "popupkonfirmasi")
-                        Image(
-                            painter = painterResource(id = popupResId),
-                            contentDescription = "Success Popup",
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier
-                                .size(140.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                        )
-                        
-                        Spacer(modifier = Modifier.height(20.dp))
-                        
-                        Text(
-                            text = "Pesanan Berhasil Dibuat!",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                            textAlign = TextAlign.Center
-                        )
-                        
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
-                        Text(
-                            text = "Silakan bersantai sejenak, pesanan Anda akan segera meluncur ke meja Anda.",
-                            fontSize = 13.sp,
-                            color = Color.Gray,
-                            textAlign = TextAlign.Center
-                        )
-                        
-                        Spacer(modifier = Modifier.height(24.dp))
-                        
-                        Button(
-                            onClick = { showDialog = false },
-                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(48.dp)
-                        ) {
-                            Text(text = "OK", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                        }
-                    }
-                }
             }
         }
     }

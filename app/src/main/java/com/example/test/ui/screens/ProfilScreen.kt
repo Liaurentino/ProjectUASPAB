@@ -27,7 +27,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,11 +36,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.test.ui.theme.PrimaryOrange
 import com.example.test.ui.theme.PrimaryRed
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 
 @Composable
 fun ProfilScreen(
     userName: String,
     userEmail: String,
+    onNavigateToEditProfil: () -> Unit,
     onNavigateToSettings: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -77,12 +84,18 @@ fun ProfilScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = userName.ifEmpty { "User" },
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                // Name and Edit button
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = userName.ifEmpty { "User" },
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    IconButton(onClick = onNavigateToEditProfil) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit Profil", tint = Color.White, modifier = Modifier.size(18.dp))
+                    }
+                }
 
                 Text(
                     text = userEmail.ifEmpty { "user@example.com" },

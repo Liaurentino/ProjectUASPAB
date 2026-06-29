@@ -24,4 +24,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Test"
 include(":app")
-include(":app:pabp11")
