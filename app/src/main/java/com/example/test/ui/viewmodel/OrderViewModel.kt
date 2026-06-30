@@ -2,9 +2,11 @@ package com.example.test.ui.viewmodel
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.test.OrderReceiver
 import com.example.test.data.SupabaseClient
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
@@ -22,6 +24,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 
 // ============================================================
 // Data classes untuk komunikasi dengan Supabase (serializable)
@@ -96,6 +100,7 @@ enum class OrderStatus {
 data class UiState(
     val userName: String = "",
     val userEmail: String = "",
+    val userPhone: String = "",
     val userLocation: String = "Jl. Thamrin, Jakarta Pusat",
     val profileImageUrl: String = "",
     val cartItems: List<CartItem> = emptyList(),
@@ -153,10 +158,17 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
         // Load initial user details from SharedPreferences
         val name = sharedPrefs.getString("user_name", "") ?: ""
         val email = sharedPrefs.getString("user_email", "") ?: ""
+        val phone = sharedPrefs.getString("user_phone", "") ?: ""
         val location = sharedPrefs.getString("user_location", "Jl. Thamrin, Jakarta Pusat") ?: "Jl. Thamrin, Jakarta Pusat"
         val profileImageUrl = sharedPrefs.getString("profile_image_url", "") ?: ""
         _uiState.update {
-            it.copy(userName = name, userEmail = email, userLocation = location, profileImageUrl = profileImageUrl)
+            it.copy(
+                userName = name,
+                userEmail = email,
+                userPhone = phone,
+                userLocation = location,
+                profileImageUrl = profileImageUrl
+            )
         }
 
         // Fetch menu dari Supabase
@@ -250,6 +262,16 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.update { it.copy(cartItems = emptyList()) }
     }
 
+    private fun sendOrderBroadcast(status: String) {
+        val context = getApplication<Application>().applicationContext
+        val intent = Intent(context, OrderReceiver::class.java).apply {
+            action = OrderReceiver.ACTION_ORDER_STATUS_CHANGED
+            putExtra(OrderReceiver.EXTRA_ORDER_STATUS, status)
+        }
+        context.sendBroadcast(intent)
+        Log.d(TAG, "Broadcasting status: $status")
+    }
+
     // =============================================================
     // CREATE: Memasukkan order baru ke tabel 'orders' & 'order_items'
     // =============================================================
@@ -262,6 +284,7 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
 
         _uiState.update { it.copy(activeOrderStatus = OrderStatus.PREPARING) }
         clearCart()
+        sendOrderBroadcast("PLACED")
 
         viewModelScope.launch {
             try {
@@ -331,6 +354,7 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun updateOrderStatus(orderId: String, newStatus: OrderStatus) {
         _uiState.update { it.copy(activeOrderStatus = newStatus) }
+        sendOrderBroadcast(newStatus.name)
         try {
             SupabaseClient.client.postgrest["orders"]
                 .update({ set("status", newStatus.name) }) {
@@ -346,10 +370,13 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
     private suspend fun simulateOrderProgressLocal() {
         delay(10000)
         _uiState.update { it.copy(activeOrderStatus = OrderStatus.PICKED_UP) }
+        sendOrderBroadcast(OrderStatus.PICKED_UP.name)
         delay(10000)
         _uiState.update { it.copy(activeOrderStatus = OrderStatus.ON_THE_WAY) }
+        sendOrderBroadcast(OrderStatus.ON_THE_WAY.name)
         delay(10000)
         _uiState.update { it.copy(activeOrderStatus = OrderStatus.ARRIVED) }
+        sendOrderBroadcast(OrderStatus.ARRIVED.name)
     }
 
     // =============================================================
@@ -380,6 +407,7 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.update {
             it.copy(activeOrderStatus = OrderStatus.NONE, activeOrderId = null)
         }
+        sendOrderBroadcast("DELIVERED")
         // Update status akhir di Supabase
         if (orderId != null) {
             viewModelScope.launch {
@@ -427,6 +455,8 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
     }
     fun updateProfile(
         newName: String,
+        newPhone: String,
+        newAddress: String,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
@@ -438,10 +468,15 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
                         data = kotlinx.serialization.json.buildJsonObject {
                             put("name", newName)
                             put("full_name", newName)
+                            put("phone", newPhone)
+                            put("address", newAddress)
                         }
                     }
                 }
                 setUserName(newName)
+                sharedPrefs.edit().putString("user_phone", newPhone).apply()
+                setUserLocation(newAddress)
+                _uiState.update { it.copy(userPhone = newPhone) }
                 onSuccess()
             } catch (e: Exception) {
                 Log.e(TAG, "Update profile failed", e)
@@ -515,9 +550,9 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 // Dapatkan user metadata setelah berhasil login
                 val currentUser = SupabaseClient.client.auth.currentUserOrNull()
-                val name = currentUser?.userMetadata?.get("name") as? String
+                val name = currentUser?.userMetadata?.get("name")?.jsonPrimitive?.contentOrNull
                     ?: emailInput.substringBefore("@")
-                val avatarUrl = currentUser?.userMetadata?.get("avatar_url") as? String ?: ""
+                val avatarUrl = currentUser?.userMetadata?.get("avatar_url")?.jsonPrimitive?.contentOrNull ?: ""
 
                 setUserName(name)
                 setUserEmail(emailInput)
@@ -597,11 +632,11 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
 
                     // Ambil info user setelah login berhasil
                     val currentUser = SupabaseClient.client.auth.currentUserOrNull()
-                    val name = (currentUser?.userMetadata?.get("full_name") as? String)
-                        ?: (currentUser?.userMetadata?.get("name") as? String)
+                    val name = currentUser?.userMetadata?.get("full_name")?.jsonPrimitive?.contentOrNull
+                        ?: currentUser?.userMetadata?.get("name")?.jsonPrimitive?.contentOrNull
                         ?: currentUser?.email?.substringBefore("@") ?: ""
                     val email = currentUser?.email ?: ""
-                    val avatarUrl = currentUser?.userMetadata?.get("avatar_url") as? String ?: ""
+                    val avatarUrl = currentUser?.userMetadata?.get("avatar_url")?.jsonPrimitive?.contentOrNull ?: ""
 
                     setUserName(name)
                     setUserEmail(email)

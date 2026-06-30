@@ -68,17 +68,19 @@ import java.io.ByteArrayOutputStream
 fun EditProfilScreen(
     userName: String,
     userEmail: String,
+    userPhone: String,
+    userLocation: String,
     profileImageUrl: String,
     isUploadingImage: Boolean,
-    onSave: (name: String) -> Unit,
+    onSave: (name: String, phone: String, address: String) -> Unit,
     onUploadImage: (imageBytes: ByteArray, fileExtension: String) -> Unit,
     onBackClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     var editedName by remember { mutableStateOf(userName) }
-    var editedPhone by remember { mutableStateOf("") }
-    var editedAddress by remember { mutableStateOf("") }
+    var editedPhone by remember { mutableStateOf(userPhone) }
+    var editedAddress by remember { mutableStateOf(userLocation) }
 
     // Uri foto yang baru dipilih (gallery atau kamera), dipakai untuk preview sebelum/selagi upload
     var localPreviewUri by remember { mutableStateOf<Uri?>(null) }
@@ -232,7 +234,7 @@ fun EditProfilScreen(
 
             Button(
                 onClick = {
-                    onSave(editedName)
+                    onSave(editedName, editedPhone, editedAddress)
                     onBackClicked()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryRed),

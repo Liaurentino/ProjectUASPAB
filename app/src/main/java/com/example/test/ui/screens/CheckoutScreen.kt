@@ -18,11 +18,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
@@ -30,7 +32,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,6 +62,7 @@ import coil.compose.AsyncImage
 import com.example.test.ui.components.ResourceHelper
 import com.example.test.ui.theme.PrimaryOrange
 import com.example.test.ui.theme.PrimaryRed
+import com.example.test.ui.theme.SuccessGreen
 import com.example.test.ui.viewmodel.CartItem
 import com.example.test.ui.viewmodel.MenuItem
 
@@ -86,7 +89,7 @@ fun CheckoutScreen(
                 title = { Text("Checkout Pesanan", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClicked) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -178,7 +181,7 @@ fun CheckoutScreen(
                                     color = Color.Black
                                 )
                                 Icon(
-                                    imageVector = Icons.Default.ArrowForwardIos,
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                                     contentDescription = "Arrow Voucher",
                                     tint = PrimaryRed,
                                     modifier = Modifier.size(16.dp)
@@ -233,7 +236,7 @@ fun CheckoutScreen(
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(12.dp))
-                                Divider(color = Color(0xFFEEEEEE))
+                                HorizontalDivider(color = Color(0xFFEEEEEE))
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -316,51 +319,135 @@ fun CheckoutScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
-                shape = RoundedCornerShape(24.dp),
+                    .padding(16.dp),
+                shape = RoundedCornerShape(28.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(8.dp)
+                elevation = CardDefaults.cardElevation(12.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(24.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val popupResId = ResourceHelper.getDrawableResId(context, "popupkonfirmasi")
-                    Image(
-                        painter = painterResource(id = popupResId),
-                        contentDescription = "Konfirmasi Pesanan",
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier.size(180.dp)
-                    )
+                    // Neutral Light Gray Circle Container for Illustration (No pink/red tones)
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .background(
+                                color = Color(0xFFF5F5F5),
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val popupResId = ResourceHelper.getDrawableResId(context, "popupkonfirmasi")
+                        Image(
+                            painter = painterResource(id = popupResId),
+                            contentDescription = "Konfirmasi Pesanan",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.size(80.dp)
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // Title
+                    Text(
+                        text = "Pesanan Berhasil Dibuat!",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF212121),
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Subtitle / Description
                     Text(
                         text = "Terima kasih! Tim kami sedang menyiapkan hidangan spesialmu. Mohon ditunggu sebentar, ya!",
-                        fontSize = 14.sp,
-                        color = PrimaryRed,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Center
+                        fontSize = 13.sp,
+                        color = Color(0xFF666666),
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 18.sp
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
 
+                    // Detail Box - Made Clean White with Light Border
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        border = BorderStroke(1.dp, Color(0xFFE0E0E0))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "STATUS",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Gray
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Menyiapkan 🍳",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = PrimaryRed
+                                )
+                            }
+                            // Divider line
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .height(30.dp)
+                                    .background(Color(0xFFE0E0E0))
+                            )
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "ESTIMASI",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Gray
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "15 - 20 Menit",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF2E7D32)
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Button - Kept Red as requested by user
                     Button(
                         onClick = {
                             showConfirmDialog = false
                             onOrderConfirmed()
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = PrimaryRed),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp)
+                            .height(50.dp)
                     ) {
                         Text(
                             text = "Konfirmasi",
-                            fontSize = 15.sp,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFFD700)
+                            color = Color.White
                         )
                     }
                 }
@@ -434,17 +521,19 @@ fun CheckoutItemCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                IconButton(
-                    onClick = { onQuantityChanged(cartItem.quantity - 1) },
+                Box(
                     modifier = Modifier
                         .size(28.dp)
-                        .background(Color(0xFFF0F0F0), RoundedCornerShape(6.dp))
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color(0xFFF0F0F0))
+                        .clickable { onQuantityChanged(cartItem.quantity - 1) },
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = if (cartItem.quantity <= 1) Icons.Default.Delete else Icons.Default.Remove,
                         contentDescription = "Remove",
                         tint = Color.DarkGray,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(14.dp)
                     )
                 }
                 Text(
@@ -453,17 +542,19 @@ fun CheckoutItemCard(
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
-                IconButton(
-                    onClick = { onQuantityChanged(cartItem.quantity + 1) },
+                Box(
                     modifier = Modifier
                         .size(28.dp)
-                        .background(Color(0xFFF0F0F0), RoundedCornerShape(6.dp))
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color(0xFFF0F0F0))
+                        .clickable { onQuantityChanged(cartItem.quantity + 1) },
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add",
                         tint = Color.DarkGray,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(14.dp)
                     )
                 }
             }

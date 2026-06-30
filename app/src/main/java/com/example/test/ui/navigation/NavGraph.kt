@@ -11,7 +11,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.test.ui.screens.CheckoutScreen
 import com.example.test.ui.screens.KeamananScreen
-import com.example.test.ui.screens.KonfirmasiScreen
 import com.example.test.ui.screens.LoginScreen
 import com.example.test.ui.screens.LokasiRestoranScreen
 import com.example.test.ui.screens.MainScreen
@@ -117,23 +116,12 @@ fun AppNavGraph(
                     viewModel.placeOrder()
                 },
                 onOrderConfirmed = {
-                    navController.navigate(Screen.Konfirmasi.route) {
+                    navController.navigate(Screen.Main.withTab(1)) {
                         popUpTo(Screen.Checkout.route) { inclusive = true }
                     }
                 },
                 onBackClicked = { navController.popBackStack() },
                 onAddMoreMenu = { navController.popBackStack() }
-            )
-        }
-
-        composable(Screen.Konfirmasi.route) {
-            KonfirmasiScreen(
-                onBackToMenu = {
-                    // Buka Main dengan tab Menu (index 1) langsung terpilih
-                    navController.navigate(Screen.Main.withTab(1)) {
-                        popUpTo(Screen.Konfirmasi.route) { inclusive = true }
-                    }
-                }
             )
         }
 
@@ -183,12 +171,16 @@ fun AppNavGraph(
             EditProfilScreen(
                 userName = uiState.userName,
                 userEmail = uiState.userEmail,
+                userPhone = uiState.userPhone,
+                userLocation = uiState.userLocation,
                 profileImageUrl = uiState.profileImageUrl,
                 isUploadingImage = uiState.isUploadingProfileImage,
 
-                onSave = { newName ->
+                onSave = { newName, newPhone, newAddress ->
                     viewModel.updateProfile(
-                        newName,
+                        newName = newName,
+                        newPhone = newPhone,
+                        newAddress = newAddress,
                         onSuccess = {},
                         onError = {}
                     )

@@ -26,13 +26,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.ViewList
+import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +58,15 @@ import com.example.test.ui.components.ResourceHelper
 import com.example.test.ui.theme.PrimaryOrange
 import com.example.test.ui.theme.PrimaryRed
 import com.example.test.ui.viewmodel.MenuItem
+import com.example.test.ui.viewmodel.CartItem
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ShoppingCart
 
 private enum class MenuViewMode {
     GRID, LIST
@@ -67,7 +81,11 @@ private val CATEGORY_ORDER = listOf("Nasi", "Sate", "Sop", "Minuman")
 fun MenuScreen(
     userName: String,
     menuByCategory: Map<String, List<MenuItem>>,
+    cartItems: List<CartItem>,
     onAddToCart: (MenuItem) -> Unit,
+    onCheckoutClicked: () -> Unit,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -81,120 +99,260 @@ fun MenuScreen(
         listOf(CATEGORY_ALL) + known + unknown
     }
 
-    // Item yang ditampilkan sesuai chip yang dipilih
-    val displayedItems = remember(selectedCategory, menuByCategory) {
-        if (selectedCategory == CATEGORY_ALL) {
+    // Item yang ditampilkan sesuai chip yang dipilih dan kata kunci pencarian
+    val displayedItems = remember(selectedCategory, searchQuery, menuByCategory) {
+        val baseItems = if (selectedCategory == CATEGORY_ALL) {
             CATEGORY_ORDER.flatMap { menuByCategory[it].orEmpty() } +
                     menuByCategory.filterKeys { it !in CATEGORY_ORDER }.values.flatten()
         } else {
             menuByCategory[selectedCategory].orEmpty()
         }
+        
+        if (searchQuery.isBlank()) {
+            baseItems
+        } else {
+            baseItems.filter { item ->
+                item.name.contains(searchQuery, ignoreCase = true) ||
+                (item.description ?: "").contains(searchQuery, ignoreCase = true) ||
+                item.category.contains(searchQuery, ignoreCase = true)
+            }
+        }
     }
 
-    Column(
+    val totalItems = cartItems.sumOf { it.quantity }
+    val totalPrice = cartItems.sumOf { it.menuItem.price * it.quantity }
+    val bottomPadding = if (totalItems > 0) 90.dp else 16.dp
+
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFF8F9FA))
     ) {
-        // Sticky Header / Greeting Banner
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                        colors = listOf(PrimaryRed, PrimaryRed.copy(alpha = 0.85f))
-                    ),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
-                )
-                .padding(horizontal = 24.dp, vertical = 24.dp)
+            modifier = Modifier.fillMaxSize()
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+            // Sticky Header / Greeting Banner
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                            colors = listOf(PrimaryRed, PrimaryRed.copy(alpha = 0.85f))
+                        ),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
+                    )
+                    .padding(horizontal = 24.dp, vertical = 24.dp)
             ) {
-                Column {
-                    Text(
-                        text = "Daftar Menu",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                    Text(
-                        text = "Silakan pilih hidangan favorit Anda hari ini",
-                        fontSize = 13.sp,
-                        color = Color.White.copy(alpha = 0.8f)
-                    )
-                }
-
-                // Toggle Grid / List
-                ViewModeToggle(
-                    viewMode = viewMode,
-                    onToggle = {
-                        viewMode = if (viewMode == MenuViewMode.LIST) MenuViewMode.GRID else MenuViewMode.LIST
-                    }
-                )
-            }
-        }
-
-        // Chip filter kategori (horizontal scroll)
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            items(availableCategories) { category ->
-                CategoryChip(
-                    label = category,
-                    isSelected = category == selectedCategory,
-                    onClick = { selectedCategory = category }
-                )
-            }
-        }
-
-        // Menu items sesuai kategori yang dipilih
-        when (viewMode) {
-            MenuViewMode.LIST -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
                 ) {
-                    items(displayedItems) { item ->
-                        MenuCard(
-                            menuItem = item,
-                            context = context,
-                            onAddClicked = { onAddToCart(item) }
+                    Column {
+                        Text(
+                            text = "Daftar Menu",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        Text(
+                            text = "Silakan pilih hidangan favorit Anda hari ini",
+                            fontSize = 13.sp,
+                            color = Color.White.copy(alpha = 0.8f)
                         )
                     }
+
+                    // Toggle Grid / List
+                    ViewModeToggle(
+                        viewMode = viewMode,
+                        onToggle = {
+                            viewMode = if (viewMode == MenuViewMode.LIST) MenuViewMode.GRID else MenuViewMode.LIST
+                        }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Search Bar
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = onSearchQueryChange,
+                    placeholder = { Text("Cari menu masakan lezat...", color = Color.Gray) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Gray) },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { onSearchQueryChange("") }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Clear Search",
+                                    tint = Color.Gray
+                                )
+                            }
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            // Chip filter kategori (horizontal scroll)
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(availableCategories) { category ->
+                    CategoryChip(
+                        label = category,
+                        isSelected = category == selectedCategory,
+                        onClick = { selectedCategory = category }
+                    )
                 }
             }
 
-            MenuViewMode.GRID -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    val rows = displayedItems.chunked(2)
-                    items(rows) { rowItems ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            rowItems.forEach { item ->
-                                MenuGridCard(
-                                    menuItem = item,
-                                    context = context,
-                                    onAddClicked = { onAddToCart(item) },
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                            if (rowItems.size == 1) {
-                                Spacer(modifier = Modifier.weight(1f))
+            // Menu items sesuai kategori yang dipilih
+            when (viewMode) {
+                MenuViewMode.LIST -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 4.dp, bottom = bottomPadding),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(displayedItems) { item ->
+                            MenuCard(
+                                menuItem = item,
+                                context = context,
+                                onAddClicked = { onAddToCart(item) }
+                            )
+                        }
+                    }
+                }
+
+                MenuViewMode.GRID -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 4.dp, bottom = bottomPadding),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        val rows = displayedItems.chunked(2)
+                        items(rows) { rowItems ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                rowItems.forEach { item ->
+                                    MenuGridCard(
+                                        menuItem = item,
+                                        context = context,
+                                        onAddClicked = { onAddToCart(item) },
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                                if (rowItems.size == 1) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                }
                             }
                         }
                     }
                 }
+            }
+        }
+
+        // Floating Cart Bar
+        AnimatedVisibility(
+            visible = totalItems > 0,
+            enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
+            exit = fadeOut() + slideOutVertically(targetOffsetY = { it }),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+        ) {
+            FloatingCartBar(
+                totalItems = totalItems,
+                totalPrice = totalPrice,
+                onCheckoutClicked = onCheckoutClicked
+            )
+        }
+    }
+}
+
+@Composable
+fun FloatingCartBar(
+    totalItems: Int,
+    totalPrice: Double,
+    onCheckoutClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onCheckoutClicked() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = PrimaryRed),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(Color.White.copy(alpha = 0.2f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = "Keranjang",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(
+                        text = "$totalItems Item | Hidangan Terpilih",
+                        color = Color.White.copy(alpha = 0.85f),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "Rp ${String.format("%,.0f", totalPrice)}",
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                }
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Lihat Keranjang",
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Buka Keranjang",
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp)
+                )
             }
         }
     }
@@ -245,7 +403,7 @@ private fun ViewModeToggle(
         verticalAlignment = Alignment.CenterVertically
     ) {
         ToggleIconButton(
-            icon = Icons.Default.ViewList,
+            icon = Icons.AutoMirrored.Filled.ViewList,
             isSelected = viewMode == MenuViewMode.LIST,
             onClick = { if (viewMode != MenuViewMode.LIST) onToggle() }
         )
@@ -274,7 +432,7 @@ private fun ToggleIconButton(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = if (icon == Icons.Default.ViewList) "Tampilan List" else "Tampilan Grid",
+            contentDescription = if (icon == Icons.AutoMirrored.Filled.ViewList) "Tampilan List" else "Tampilan Grid",
             tint = if (isSelected) PrimaryRed else Color.White,
             modifier = Modifier.size(18.dp)
         )

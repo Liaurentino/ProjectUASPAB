@@ -59,6 +59,8 @@ import com.example.test.ui.theme.PrimaryRed
 fun BerandaScreen(
     userName: String,
     userLocation: String,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
     onMenuTabSelected: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -141,11 +143,13 @@ fun BerandaScreen(
 
                 // Search Bar
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
+                    value = searchQuery,
+                    onValueChange = {
+                        onSearchQueryChange(it)
+                        onMenuTabSelected()
+                    },
                     placeholder = { Text("Cari sate, nasi goreng, sup buntut...", color = Color.Gray) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Gray) },
-                    readOnly = true,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color.White,
                         unfocusedContainerColor = Color.White,
@@ -153,9 +157,8 @@ fun BerandaScreen(
                         unfocusedBorderColor = Color.Transparent
                     ),
                     shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onMenuTabSelected() }
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }

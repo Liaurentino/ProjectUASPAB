@@ -17,14 +17,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.example.test.ui.theme.PrimaryOrange
 import com.example.test.ui.theme.PrimaryRed
-import com.example.test.ui.viewmodel.MenuItem
 import com.example.test.ui.viewmodel.OrderViewModel
+import com.example.test.ui.viewmodel.CartItem
 import com.example.test.ui.navigation.Screen
 
 @Composable
@@ -38,15 +39,16 @@ fun MainScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     // Tab awal mengikuti initialTab (misal dikirim dari KonfirmasiScreen agar langsung buka tab Menu)
-    var selectedTab by remember { mutableIntStateOf(initialTab) }
-
+    var selectedTab by rememberSaveable(initialTab) { mutableIntStateOf(initialTab) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+ 
     val tabs = listOf(
         TabItem("Beranda", Icons.Default.Home),
         TabItem("Menu", Icons.Default.Restaurant),
         TabItem("Pesanan", Icons.Default.Receipt),
         TabItem("Profil", Icons.Default.Person)
     )
-
+ 
     Scaffold(
         bottomBar = {
             NavigationBar(
@@ -77,16 +79,21 @@ fun MainScreen(
             0 -> BerandaScreen(
                 userName = uiState.userName,
                 userLocation = uiState.userLocation,
+                searchQuery = searchQuery,
+                onSearchQueryChange = { searchQuery = it },
                 onMenuTabSelected = { selectedTab = 1 },
                 modifier = innerModifier
             )
             1 -> MenuScreen(
                 userName = uiState.userName,
                 menuByCategory = viewModel.menuByCategory,
+                cartItems = uiState.cartItems,
                 onAddToCart = { menuItem ->
                     viewModel.addToCart(menuItem)
-                    onNavigateToCheckout()
                 },
+                onCheckoutClicked = onNavigateToCheckout,
+                searchQuery = searchQuery,
+                onSearchQueryChange = { searchQuery = it },
                 modifier = innerModifier
             )
             2 -> PesananScreen(
