@@ -1,5 +1,6 @@
 package com.example.test.ui.screens
 
+import com.example.test.data.LanguageManager
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
@@ -124,7 +125,7 @@ fun EditProfilScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Edit Profil", fontWeight = FontWeight.Bold) },
+                title = { Text(LanguageManager.get("edit_profil"), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClicked) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -205,7 +206,7 @@ fun EditProfilScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = if (isUploadingImage) "Mengupload foto..." else "Tap untuk ganti foto",
+                text = if (isUploadingImage) LanguageManager.get("uploading_photo") else LanguageManager.get("change_photo"),
                 fontSize = 12.sp,
                 color = Color.Gray
             )
@@ -220,13 +221,13 @@ fun EditProfilScreen(
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    EditField(label = "Nama Lengkap", value = editedName, onValueChange = { editedName = it }, icon = Icons.Default.Person, placeholder = "Masukkan nama lengkap")
+                    EditField(label = LanguageManager.get("name"), value = editedName, onValueChange = { editedName = it }, icon = Icons.Default.Person, placeholder = "Masukkan nama lengkap")
                     Spacer(modifier = Modifier.height(16.dp))
                     EditField(label = "Email", value = userEmail, onValueChange = {}, icon = Icons.Default.Email, placeholder = "Email", enabled = false)
                     Spacer(modifier = Modifier.height(16.dp))
-                    EditField(label = "Nomor Telepon", value = editedPhone, onValueChange = { editedPhone = it }, icon = Icons.Default.Phone, placeholder = "Contoh: +62 812 3456 7890")
+                    EditField(label = LanguageManager.get("phone"), value = editedPhone, onValueChange = { editedPhone = it }, icon = Icons.Default.Phone, placeholder = "Contoh: +62 812 3456 7890")
                     Spacer(modifier = Modifier.height(16.dp))
-                    EditField(label = "Alamat", value = editedAddress, onValueChange = { editedAddress = it }, icon = Icons.Default.LocationOn, placeholder = "Masukkan alamat Anda")
+                    EditField(label = LanguageManager.get("address"), value = editedAddress, onValueChange = { editedAddress = it }, icon = Icons.Default.LocationOn, placeholder = "Masukkan alamat Anda")
                 }
             }
 
@@ -244,7 +245,7 @@ fun EditProfilScreen(
                     .padding(horizontal = 24.dp)
                     .height(52.dp)
             ) {
-                Text(text = "Simpan Perubahan", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(text = LanguageManager.get("save_changes"), fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -253,13 +254,18 @@ fun EditProfilScreen(
 
     // Dialog pilihan sumber foto: Kamera atau Galeri
     if (showImageSourceDialog) {
+        val isEn = LanguageManager.currentLanguage == "en"
+        val dialogTitle = if (isEn) "Change Profile Picture" else "Ganti Foto Profil"
+        val cameraText = if (isEn) "Take from Camera" else "Ambil dari Kamera"
+        val galleryText = if (isEn) "Choose from Gallery" else "Pilih dari Galeri"
+
         AlertDialog(
             onDismissRequest = { showImageSourceDialog = false },
-            title = { Text("Ganti Foto Profil") },
+            title = { Text(dialogTitle) },
             text = {
                 Column {
                     Text(
-                        text = "Ambil dari Kamera",
+                        text = cameraText,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
@@ -269,7 +275,7 @@ fun EditProfilScreen(
                             .padding(vertical = 12.dp)
                     )
                     Text(
-                        text = "Pilih dari Galeri",
+                        text = galleryText,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
@@ -282,7 +288,7 @@ fun EditProfilScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showImageSourceDialog = false }) {
-                    Text("Batal", color = PrimaryRed)
+                    Text(LanguageManager.get("cancel"), color = PrimaryRed)
                 }
             }
         )
@@ -352,12 +358,17 @@ private fun EditField(
         },
         shape = RoundedCornerShape(10.dp),
         colors = OutlinedTextFieldDefaults.colors(
+            // Warna teks input selalu hitam (mencegah putih di dark mode)
+            focusedTextColor = Color(0xFF1A1A1A),
+            unfocusedTextColor = Color(0xFF1A1A1A),
+            disabledTextColor = Color(0xFF757575),
             focusedBorderColor = PrimaryRed,
             unfocusedBorderColor = Color(0xFFE0E0E0),
             disabledBorderColor = Color(0xFFEEEEEE),
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,
-            disabledContainerColor = Color(0xFFF5F5F5)
+            disabledContainerColor = Color(0xFFF5F5F5),
+            cursorColor = PrimaryRed
         ),
         singleLine = true,
         modifier = Modifier.fillMaxWidth()

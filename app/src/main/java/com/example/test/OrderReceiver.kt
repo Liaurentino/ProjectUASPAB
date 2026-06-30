@@ -16,12 +16,43 @@ class OrderReceiver : BroadcastReceiver() {
         private const val TAG = "OrderReceiver"
         const val ACTION_ORDER_STATUS_CHANGED = "com.example.test.ORDER_STATUS_CHANGED"
         const val EXTRA_ORDER_STATUS = "order_status"
+
+        // Daftar nama driver, dipilih random setiap order baru dibuat (status PLACED)
+        private val DRIVER_NAMES = listOf(
+            "Nafis Basreng",
+            "Mumtaaz Sepatu Roda",
+            "Yanu Bem",
+            "Dhafi Jawir",
+            "Liau Yau"
+        )
+        private const val PREF_KEY_CURRENT_DRIVER = "current_driver_name"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == ACTION_ORDER_STATUS_CHANGED) {
+            val sharedPrefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+            val isNotificationsEnabled = sharedPrefs.getBoolean("notifications_enabled", true)
+            if (!isNotificationsEnabled) {
+                Log.d(TAG, "Notifications are disabled. Suppressing notification.")
+                return
+            }
+
             val status = intent.getStringExtra(EXTRA_ORDER_STATUS) ?: "UNKNOWN"
             Log.d(TAG, "Broadcast received: status = $status")
+
+            // Saat order baru dibuat, pilih driver random sekali dan simpan supaya konsisten
+            // dipakai di notifikasi status-status berikutnya (PICKED_UP, ON_THE_WAY, dst).
+            val driverName: String = if (status == "PLACED") {
+                val randomDriver = DRIVER_NAMES.random()
+                sharedPrefs.edit().putString(PREF_KEY_CURRENT_DRIVER, randomDriver).apply()
+                Log.d(TAG, "Driver baru dipilih: $randomDriver")
+                randomDriver
+            } else {
+                sharedPrefs.getString(PREF_KEY_CURRENT_DRIVER, null) ?: DRIVER_NAMES.random().also {
+                    // Fallback jika somehow belum ada driver tersimpan (misal app baru diinstall ulang)
+                    sharedPrefs.edit().putString(PREF_KEY_CURRENT_DRIVER, it).apply()
+                }
+            }
 
             val (title, message) = when (status) {
                 "PLACED" -> Pair(
@@ -34,15 +65,15 @@ class OrderReceiver : BroadcastReceiver() {
                 )
                 "PICKED_UP" -> Pair(
                     "Pesanan Dijemput Driver",
-                    "Driver telah mengambil pesanan Anda dan siap mengantarkan."
+                    "Driver $driverName telah mengambil pesanan Anda dan siap mengantarkan."
                 )
                 "ON_THE_WAY" -> Pair(
                     "Pesanan Sedang Dikirim",
-                    "Driver sedang dalam perjalanan mengantarkan hidangan Anda."
+                    "Driver $driverName sedang dalam perjalanan mengantarkan hidangan Anda."
                 )
                 "ARRIVED" -> Pair(
                     "Pesanan Telah Sampai!",
-                    "Driver telah sampai di lokasi Anda. Silakan ambil pesanan Anda."
+                    "Driver $driverName telah sampai di lokasi Anda. Silakan ambil pesanan Anda."
                 )
                 "DELIVERED" -> Pair(
                     "Pesanan Selesai",
@@ -52,6 +83,11 @@ class OrderReceiver : BroadcastReceiver() {
                     "Status Pesanan Diperbarui",
                     "Status pesanan terbaru: $status"
                 )
+            }
+
+            // Bersihkan nama driver tersimpan setelah order selesai, agar order berikutnya dapat driver baru
+            if (status == "DELIVERED") {
+                sharedPrefs.edit().remove(PREF_KEY_CURRENT_DRIVER).apply()
             }
 
             // Tampilkan Toast

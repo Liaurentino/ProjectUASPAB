@@ -191,7 +191,9 @@ fun AppNavGraph(
                         imageBytes = imageBytes,
                         fileExtension = extension,
                         onSuccess = {},
-                        onError = {}
+                        onError = { errMsg ->
+                            android.util.Log.e("NavGraph", "Upload foto gagal: $errMsg")
+                        }
                     )
                 },
 

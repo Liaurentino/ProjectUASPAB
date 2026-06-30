@@ -1,5 +1,7 @@
 package com.example.test.ui.screens
 
+import android.content.Context
+import com.example.test.data.LanguageManager
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
@@ -43,10 +45,10 @@ fun MainScreen(
     var searchQuery by rememberSaveable { mutableStateOf("") }
  
     val tabs = listOf(
-        TabItem("Beranda", Icons.Default.Home),
-        TabItem("Menu", Icons.Default.Restaurant),
-        TabItem("Pesanan", Icons.Default.Receipt),
-        TabItem("Profil", Icons.Default.Person)
+        TabItem(LanguageManager.get("beranda"), Icons.Default.Home),
+        TabItem(LanguageManager.get("menu"), Icons.Default.Restaurant),
+        TabItem(LanguageManager.get("pesanan"), Icons.Default.Receipt),
+        TabItem(LanguageManager.get("profil"), Icons.Default.Person)
     )
  
     Scaffold(
@@ -78,10 +80,12 @@ fun MainScreen(
         when (selectedTab) {
             0 -> BerandaScreen(
                 userName = uiState.userName,
+                profileImageUrl = uiState.profileImageUrl,
                 userLocation = uiState.userLocation,
                 searchQuery = searchQuery,
                 onSearchQueryChange = { searchQuery = it },
                 onMenuTabSelected = { selectedTab = 1 },
+                onNavigateToProfile = { selectedTab = 3 },
                 modifier = innerModifier
             )
             1 -> MenuScreen(
@@ -104,6 +108,7 @@ fun MainScreen(
             3 -> ProfilScreen(
                 userName = uiState.userName,
                 userEmail = uiState.userEmail,
+                profileImageUrl = uiState.profileImageUrl,
                 onNavigateToEditProfil = { onNavigateToSettings(Screen.EditProfil.route) },
                 onNavigateToSettings = onNavigateToSettings,
                 modifier = innerModifier

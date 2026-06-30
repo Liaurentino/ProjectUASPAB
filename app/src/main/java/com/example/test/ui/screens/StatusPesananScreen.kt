@@ -1,5 +1,6 @@
 package com.example.test.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,6 +60,12 @@ fun StatusPesananScreen(
     onBackClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    // Baca nama driver yang sudah dipilih random oleh OrderReceiver saat order PLACED.
+    // Key dan nama SharedPreferences harus persis sama dengan yang dipakai di OrderReceiver.
+    val sharedPrefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+    val driverName = sharedPrefs.getString("current_driver_name", null) ?: "Driver Dine In"
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -113,7 +121,7 @@ fun StatusPesananScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = "Rian Hidayat",
+                            text = driverName,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black
@@ -181,14 +189,14 @@ fun StatusPesananScreen(
 
                     TrackingStepRow(
                         title = "Makanan Diambil Driver",
-                        description = "Driver sedang menjemput makanan Anda.",
+                        description = "Driver $driverName sedang menjemput makanan Anda.",
                         isCompleted = currentStatus >= OrderStatus.PICKED_UP,
                         isCurrent = currentStatus == OrderStatus.PICKED_UP
                     )
 
                     TrackingStepRow(
                         title = "Dalam Perjalanan",
-                        description = "Driver menuju ke tempat Anda.",
+                        description = "Driver $driverName menuju ke tempat Anda.",
                         isCompleted = currentStatus >= OrderStatus.ON_THE_WAY,
                         isCurrent = currentStatus == OrderStatus.ON_THE_WAY
                     )

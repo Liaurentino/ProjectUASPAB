@@ -1,5 +1,7 @@
 package com.example.test.ui.screens
 
+import android.content.Context
+import com.example.test.data.LanguageManager
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -69,16 +71,18 @@ fun PengaturanScreen(
     onBackClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isNotificationOn by remember { mutableStateOf(true) }
-    var language by remember { mutableStateOf("Bahasa Indonesia") }
+    val context = LocalContext.current
+    val sharedPrefs = remember { context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE) }
+    var isNotificationOn by remember { mutableStateOf(sharedPrefs.getBoolean("notifications_enabled", true)) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showHelpDialog by remember { mutableStateOf(false) }
-    val context = LocalContext.current
+
+    val languageLabel = if (LanguageManager.currentLanguage == "en") "English" else "Bahasa Indonesia"
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Pengaturan Aplikasi", fontWeight = FontWeight.Bold) },
+                title = { Text(LanguageManager.get("app_settings"), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClicked) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -104,27 +108,30 @@ fun PengaturanScreen(
             ) {
                 Column {
                     SettingOptionItem(
-                        title = "Ubah Profil",
-                        subtitle = "Nama, foto, detail kontak",
+                        title = LanguageManager.get("change_profile"),
+                        subtitle = LanguageManager.get("change_profile_sub"),
                         onClick = onNavigateToEditProfil
                     )
                     Divider(color = Color(0xFFF5F5F5))
                     SettingSwitchItem(
-                        title = "Notifikasi",
-                        subtitle = "Atur pengingat makanan & promo",
+                        title = LanguageManager.get("notifications"),
+                        subtitle = LanguageManager.get("notifications_sub"),
                         isChecked = isNotificationOn,
-                        onCheckedChange = { isNotificationOn = it }
+                        onCheckedChange = { checked ->
+                            isNotificationOn = checked
+                            sharedPrefs.edit().putBoolean("notifications_enabled", checked).apply()
+                        }
                     )
                     Divider(color = Color(0xFFF5F5F5))
                     SettingOptionItem(
-                        title = "Bahasa",
-                        subtitle = language,
+                        title = LanguageManager.get("language"),
+                        subtitle = languageLabel,
                         onClick = { showLanguageDialog = true }
                     )
                     Divider(color = Color(0xFFF5F5F5))
                     SettingOptionItem(
-                        title = "Bantuan & FAQ",
-                        subtitle = "Hubungi pusat bantuan",
+                        title = LanguageManager.get("help_faq"),
+                        subtitle = LanguageManager.get("help_faq_sub"),
                         onClick = { showHelpDialog = true }
                     )
                 }
@@ -134,7 +141,7 @@ fun PengaturanScreen(
         if (showLanguageDialog) {
             AlertDialog(
                 onDismissRequest = { showLanguageDialog = false },
-                title = { Text("Pilih Bahasa") },
+                title = { Text(LanguageManager.get("choose_language")) },
                 text = {
                     Column {
                         Text(
@@ -142,7 +149,7 @@ fun PengaturanScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    language = "Bahasa Indonesia"
+                                    LanguageManager.setLanguage(context, "id")
                                     showLanguageDialog = false
                                 }
                                 .padding(vertical = 12.dp)
@@ -152,7 +159,7 @@ fun PengaturanScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    language = "English"
+                                    LanguageManager.setLanguage(context, "en")
                                     showLanguageDialog = false
                                 }
                                 .padding(vertical = 12.dp)
@@ -161,7 +168,7 @@ fun PengaturanScreen(
                 },
                 confirmButton = {
                     TextButton(onClick = { showLanguageDialog = false }) {
-                        Text("Batal", color = PrimaryRed)
+                        Text(LanguageManager.get("cancel"), color = PrimaryRed)
                     }
                 }
             )
@@ -170,7 +177,7 @@ fun PengaturanScreen(
         if (showHelpDialog) {
             AlertDialog(
                 onDismissRequest = { showHelpDialog = false },
-                title = { Text("Bantuan & FAQ") },
+                title = { Text(LanguageManager.get("help_faq")) },
                 text = { Text("Silakan hubungi kami di support@dinein.com atau via telepon di (021) 555-0199 untuk bantuan lebih lanjut.") },
                 confirmButton = {
                     TextButton(onClick = { showHelpDialog = false }) {

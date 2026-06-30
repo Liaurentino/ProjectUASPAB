@@ -1,6 +1,9 @@
 package com.example.test.ui.screens
 
 import android.content.Context
+import coil.compose.AsyncImage
+import com.example.test.data.LanguageManager
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -58,10 +61,12 @@ import com.example.test.ui.theme.PrimaryRed
 @Composable
 fun BerandaScreen(
     userName: String,
+    profileImageUrl: String,
     userLocation: String,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onMenuTabSelected: () -> Unit,
+    onNavigateToProfile: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -90,30 +95,52 @@ fun BerandaScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp, vertical = 16.dp)
             ) {
-                // Greeting and Notification Icon
+                // Greeting and Profile Photo — avatar di KIRI
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    // Lingkaran foto profil di sebelah KIRI
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(Color.White.copy(alpha = 0.2f), CircleShape)
+                            .clip(CircleShape)
+                            .clickable { onNavigateToProfile() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (profileImageUrl.isNotEmpty()) {
+                            AsyncImage(
+                                model = profileImageUrl,
+                                contentDescription = "Profile Picture",
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(CircleShape),
+                                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Profile Picture Placeholder",
+                                tint = Color.White,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    // Teks greeting di sebelah kanan avatar
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Halo, $userName!",
+                            text = "${LanguageManager.get("halo")}, $userName!",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
                         Text(
-                            text = "Mau makan enak apa hari ini?",
+                            text = LanguageManager.get("mau_makan"),
                             fontSize = 13.sp,
                             color = Color.White.copy(alpha = 0.8f)
-                        )
-                    }
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notification",
-                            tint = Color.White
                         )
                     }
                 }
@@ -148,7 +175,7 @@ fun BerandaScreen(
                         onSearchQueryChange(it)
                         onMenuTabSelected()
                     },
-                    placeholder = { Text("Cari sate, nasi goreng, sup buntut...", color = Color.Gray) },
+                    placeholder = { Text(LanguageManager.get("search_placeholder"), color = Color.Gray) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Gray) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color.White,
@@ -166,7 +193,7 @@ fun BerandaScreen(
         // Promo Banner Section
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Promo Terhangat",
+            text = LanguageManager.get("promo"),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
@@ -229,7 +256,7 @@ fun BerandaScreen(
         // Food Categories
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Kategori Menu",
+            text = LanguageManager.get("categories"),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
@@ -243,10 +270,10 @@ fun BerandaScreen(
                 .padding(horizontal = 24.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            CategoryItem(title = "Nasi", icon = Icons.Default.Fastfood, color = Color(0xFFFFEBEE), tint = PrimaryRed, onClick = onMenuTabSelected)
-            CategoryItem(title = "Sate", icon = Icons.Default.RestaurantMenu, color = Color(0xFFFFF3E0), tint = PrimaryOrange, onClick = onMenuTabSelected)
-            CategoryItem(title = "Sop", icon = Icons.Default.LocalFireDepartment, color = Color(0xFFE8F5E9), tint = Color(0xFF4CAF50), onClick = onMenuTabSelected)
-            CategoryItem(title = "Lainnya", icon = Icons.Default.ArrowForward, color = Color(0xFFE3F2FD), tint = Color(0xFF2196F3), onClick = onMenuTabSelected)
+            CategoryItem(title = LanguageManager.get("nasi"), icon = Icons.Default.Fastfood, color = Color(0xFFFFEBEE), tint = PrimaryRed, onClick = onMenuTabSelected)
+            CategoryItem(title = LanguageManager.get("sate"), icon = Icons.Default.RestaurantMenu, color = Color(0xFFFFF3E0), tint = PrimaryOrange, onClick = onMenuTabSelected)
+            CategoryItem(title = LanguageManager.get("sop"), icon = Icons.Default.LocalFireDepartment, color = Color(0xFFE8F5E9), tint = Color(0xFF4CAF50), onClick = onMenuTabSelected)
+            CategoryItem(title = LanguageManager.get("lainnya"), icon = Icons.Default.ArrowForward, color = Color(0xFFE3F2FD), tint = Color(0xFF2196F3), onClick = onMenuTabSelected)
         }
 
         // Popular Foods

@@ -167,10 +167,10 @@ fun PesananScreen(
                                 )
                                 Text(
                                     text = when (activeStatus) {
-                                        OrderStatus.PREPARING -> "Sedang Memasak \uD83C\uDF73"
-                                        OrderStatus.PICKED_UP -> "Driver Menjemput \uD83C\uDFC3"
-                                        OrderStatus.ON_THE_WAY -> "Dalam Perjalanan \uD83D\uDEF5"
-                                        OrderStatus.ARRIVED -> "Makanan Sampai! \uD83C\uDF89"
+                                        OrderStatus.PREPARING -> "Sedang Memasak "
+                                        OrderStatus.PICKED_UP -> "Driver Menjemput "
+                                        OrderStatus.ON_THE_WAY -> "Dalam Perjalanan "
+                                        OrderStatus.ARRIVED -> "Makanan Sampai! "
                                         else -> ""
                                     },
                                     fontSize = 13.sp,

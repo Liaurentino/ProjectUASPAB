@@ -486,7 +486,7 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // =============================================================
-    // UPDATE: Upload foto profil ke Supabase Storage (bucket 'profileimages')
+    // UPDATE: Upload foto profil ke Supabase Storage (bucket 'menuimage')
     // =============================================================
     fun uploadProfileImage(
         imageBytes: ByteArray,
@@ -497,11 +497,11 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _uiState.update { it.copy(isUploadingProfileImage = true) }
             try {
-                // 1. Buat nama file unik menggunakan UUID, agar file lama tidak tertimpa cache CDN
-                val fileName = "${UUID.randomUUID()}.$fileExtension"
+                // 1. Buat nama file unik menggunakan UUID (tanpa subfolder agar Supabase tidak reject)
+                val fileName = "profil_${UUID.randomUUID()}.$fileExtension"
 
-                // 2. Upload ke bucket 'profileimages'
-                val bucket = SupabaseClient.client.storage.from("profileimages")
+                // 2. Upload ke bucket 'menuimage'
+                val bucket = SupabaseClient.client.storage.from("menuimage")
 
                 bucket.upload(
                     path = fileName,
@@ -511,25 +511,30 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
 
                 // 3. Dapatkan Public URL
                 val publicUrl = bucket.publicUrl(path = fileName)
+                Log.d(TAG, "Public URL foto profil: $publicUrl")
 
                 // 4. Update metadata user di Supabase Auth (kalau sedang login)
                 val currentUser = SupabaseClient.client.auth.currentUserOrNull()
                 if (currentUser != null) {
-                    SupabaseClient.client.auth.updateUser {
-                        data = buildJsonObject {
-                            put("avatar_url", publicUrl)
+                    try {
+                        SupabaseClient.client.auth.updateUser {
+                            data = buildJsonObject {
+                                put("avatar_url", publicUrl)
+                            }
                         }
+                    } catch (authEx: Exception) {
+                        Log.w(TAG, "Gagal update avatar_url di auth metadata, tetapi foto tetap tersimpan", authEx)
                     }
                 }
 
-                // 5. Simpan URL ke SharedPreferences & UiState
+                // 5. Simpan URL ke SharedPreferences & UiState — ini yang membuat foto langsung tampil
                 sharedPrefs.edit().putString("profile_image_url", publicUrl).apply()
                 _uiState.update { it.copy(profileImageUrl = publicUrl, isUploadingProfileImage = false) }
 
                 Log.d(TAG, "Foto profil berhasil diupload: $publicUrl")
                 onSuccess()
             } catch (e: Exception) {
-                Log.e(TAG, "Gagal upload foto profil", e)
+                Log.e(TAG, "Gagal upload foto profil: ${e.message}", e)
                 _uiState.update { it.copy(isUploadingProfileImage = false) }
                 onError(e.message ?: "Gagal mengupload foto profil.")
             }

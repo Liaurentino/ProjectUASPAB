@@ -1,5 +1,9 @@
 package com.example.test.ui.screens
 
+import com.example.test.data.LanguageManager
+import coil.compose.AsyncImage
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -47,6 +51,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 fun ProfilScreen(
     userName: String,
     userEmail: String,
+    profileImageUrl: String = "",
     onNavigateToEditProfil: () -> Unit,
     onNavigateToSettings: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -67,19 +72,31 @@ fun ProfilScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Profile Initials Circle
+                // Profile Photo Circle
                 Box(
                     modifier = Modifier
-                        .size(80.dp)
-                        .background(Color.White, CircleShape),
+                        .size(90.dp)
+                        .background(Color.White, CircleShape)
+                        .clip(CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profile Pic",
-                        tint = PrimaryRed,
-                        modifier = Modifier.size(48.dp)
-                    )
+                    if (profileImageUrl.isNotEmpty()) {
+                        AsyncImage(
+                            model = profileImageUrl,
+                            contentDescription = "Profile Pic",
+                            modifier = Modifier
+                                .size(90.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Profile Pic",
+                            tint = PrimaryRed,
+                            modifier = Modifier.size(52.dp)
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -118,35 +135,35 @@ fun ProfilScreen(
         ) {
             Column {
                 ProfileOptionRow(
-                    title = "Pengaturan",
+                    title = LanguageManager.get("pengaturan"),
                     icon = Icons.Default.Settings,
                     onClick = { onNavigateToSettings("pengaturan") }
                 )
                 Divider(color = Color(0xFFF0F0F0), modifier = Modifier.padding(horizontal = 16.dp))
                 
                 ProfileOptionRow(
-                    title = "Keamanan",
+                    title = LanguageManager.get("keamanan"),
                     icon = Icons.Default.Security,
                     onClick = { onNavigateToSettings("keamanan") }
                 )
                 Divider(color = Color(0xFFF0F0F0), modifier = Modifier.padding(horizontal = 16.dp))
                 
                 ProfileOptionRow(
-                    title = "Metode Pembayaran",
+                    title = LanguageManager.get("pembayaran"),
                     icon = Icons.Default.Payment,
                     onClick = { onNavigateToSettings("metode_pembayaran") }
                 )
                 Divider(color = Color(0xFFF0F0F0), modifier = Modifier.padding(horizontal = 16.dp))
                 
                 ProfileOptionRow(
-                    title = "Lokasi Restoran",
+                    title = LanguageManager.get("lokasi"),
                     icon = Icons.Default.LocationOn,
                     onClick = { onNavigateToSettings("lokasi_restoran") }
                 )
                 Divider(color = Color(0xFFF0F0F0), modifier = Modifier.padding(horizontal = 16.dp))
                 
                 ProfileOptionRow(
-                    title = "Tentang Kami",
+                    title = LanguageManager.get("tentang"),
                     icon = Icons.Default.Info,
                     onClick = { onNavigateToSettings("tentang_kami") }
                 )
