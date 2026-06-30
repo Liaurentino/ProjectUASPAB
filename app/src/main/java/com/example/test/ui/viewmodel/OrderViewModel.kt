@@ -34,7 +34,8 @@ data class MenuItemDto(
     val description: String? = null,
     val price: Double,
     @SerialName("image_res_name")
-    val imageResName: String
+    val imageResName: String,
+    val category: String
 )
 
 @Serializable
@@ -75,7 +76,8 @@ data class MenuItem(
     val name: String,
     val description: String,
     val price: Double,
-    val imageResName: String
+    val imageResName: String,
+    val category: String
 )
 
 data class CartItem(
@@ -115,12 +117,32 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
     private val _menuList = MutableStateFlow<List<MenuItem>>(emptyList())
     val menuList: List<MenuItem> get() = _menuList.value
 
+    // Helper untuk Screen: ambil menu yang sudah dikelompokkan per kategori
+    val menuByCategory: Map<String, List<MenuItem>>
+        get() = _menuList.value.groupBy { it.category }
+
     // Fallback menu lokal (digunakan jika koneksi Supabase gagal)
+    // 4 kategori x 3 item = 12 item, nama drawable placeholder asal (sesuaikan di res/drawable)
     private val localMenuFallback = listOf(
-        MenuItem("sate_ayam", "Sate Ayam", "Sate ayam bumbu kacang khas Madura lezat", 20000.0, "makanansate"),
-        MenuItem("nasi_goreng", "Nasi Goreng", "Nasi goreng spesial dengan telur dadar dan acar", 15000.0, "nasigorengdewa"),
-        MenuItem("sop_buntut", "Sop Buntut", "Sop buntut sapi dengan kuah kaldu hangat gurih", 35000.0, "sopbuntut"),
-        MenuItem("nasi_goreng_dewa", "Nasi Goreng Dewa", "Nasi goreng pedas level dewa dengan topping melimpah", 25000.0, "nasigorengdewa")
+        // Kategori: Nasi
+        MenuItem("nasi_1", "Nasi Goreng", "Nasi goreng spesial dengan telur dadar dan acar", 15000.0, "nasi_1", "Nasi"),
+        MenuItem("nasi_2", "Nasi Goreng Dewa", "Nasi goreng pedas level dewa dengan topping melimpah", 25000.0, "nasi_2", "Nasi"),
+        MenuItem("nasi_3", "Nasi Uduk", "Nasi uduk gurih dengan lauk pelengkap", 18000.0, "nasi_3", "Nasi"),
+
+        // Kategori: Sate
+        MenuItem("sate_1", "Sate Ayam", "Sate ayam bumbu kacang khas Madura lezat", 20000.0, "sate_1", "Sate"),
+        MenuItem("sate_2", "Sate Kambing", "Sate kambing empuk dengan bumbu kecap", 28000.0, "sate_2", "Sate"),
+        MenuItem("sate_3", "Sate Padang", "Sate padang dengan kuah kuning kental khas", 22000.0, "sate_3", "Sate"),
+
+        // Kategori: Sop
+        MenuItem("sop_1", "Sop Buntut", "Sop buntut sapi dengan kuah kaldu hangat gurih", 35000.0, "sop_1", "Sop"),
+        MenuItem("sop_2", "Sop Iga", "Sop iga sapi dengan kuah bening segar", 32000.0, "sop_2", "Sop"),
+        MenuItem("sop_3", "Soto Ayam", "Soto ayam kuah kuning dengan suwiran ayam", 17000.0, "sop_3", "Sop"),
+
+        // Kategori: Minuman
+        MenuItem("minuman_1", "Es Teh Manis", "Teh manis dingin segar pelepas dahaga", 5000.0, "minuman_1", "Minuman"),
+        MenuItem("minuman_2", "Es Jeruk", "Es jeruk peras asli tanpa pengawet", 7000.0, "minuman_2", "Minuman"),
+        MenuItem("minuman_3", "Es Kopi Susu", "Kopi susu dingin dengan gula aren", 12000.0, "minuman_3", "Minuman")
     )
 
     companion object {
@@ -158,7 +180,8 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
                         name = dto.name,
                         description = dto.description ?: "",
                         price = dto.price,
-                        imageResName = dto.imageResName
+                        imageResName = dto.imageResName,
+                        category = dto.category
                     )
                 }
                 _menuList.value = items
@@ -607,6 +630,7 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
         name: String,
         description: String,
         price: Double,
+        category: String,
         imageBytes: ByteArray,
         fileExtension: String,
         onSuccess: () -> Unit,
@@ -630,7 +654,8 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
                     name = name,
                     description = description,
                     price = price,
-                    imageResName = publicUrl // Simpan URL lengkap di kolom image_res_name
+                    imageResName = publicUrl, // Simpan URL lengkap di kolom image_res_name
+                    category = category
                 )
 
                 // 5. Insert ke tabel 'menu_items'

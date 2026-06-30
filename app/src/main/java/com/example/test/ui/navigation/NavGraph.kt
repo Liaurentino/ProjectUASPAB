@@ -5,8 +5,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.test.ui.screens.CheckoutScreen
 import com.example.test.ui.screens.KeamananScreen
 import com.example.test.ui.screens.KonfirmasiScreen
@@ -57,7 +59,7 @@ fun AppNavGraph(
             SignInScreen(
                 viewModel = viewModel,
                 onSignInSuccess = {
-                    navController.navigate(Screen.Main.route) {
+                    navController.navigate(Screen.Main.BASE_ROUTE) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 },
@@ -73,7 +75,7 @@ fun AppNavGraph(
             SignUpScreen(
                 viewModel = viewModel,
                 onSignUpSuccess = {
-                    navController.navigate(Screen.Main.route) {
+                    navController.navigate(Screen.Main.BASE_ROUTE) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 },
@@ -85,16 +87,24 @@ fun AppNavGraph(
             )
         }
 
-        composable(Screen.Main.route) {
+        composable(
+            route = Screen.Main.route,
+            arguments = listOf(
+                navArgument("tab") {
+                    type = NavType.IntType
+                    defaultValue = 0
+                }
+            )
+        ) { backStackEntry ->
+            val initialTab = backStackEntry.arguments?.getInt("tab") ?: 0
             MainScreen(
                 viewModel = viewModel,
+                initialTab = initialTab,
                 onNavigateToCheckout = { navController.navigate(Screen.Checkout.route) },
                 onNavigateToSettings = { route -> navController.navigate(route) },
                 onNavigateToStatusPesanan = { navController.navigate(Screen.StatusPesanan.route) }
             )
         }
-
-
 
         composable(Screen.Checkout.route) {
             CheckoutScreen(
@@ -107,11 +117,23 @@ fun AppNavGraph(
                     viewModel.placeOrder()
                 },
                 onOrderConfirmed = {
-                    navController.navigate(Screen.Main.route) {
+                    navController.navigate(Screen.Konfirmasi.route) {
                         popUpTo(Screen.Checkout.route) { inclusive = true }
                     }
                 },
-                onBackClicked = { navController.popBackStack() }
+                onBackClicked = { navController.popBackStack() },
+                onAddMoreMenu = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.Konfirmasi.route) {
+            KonfirmasiScreen(
+                onBackToMenu = {
+                    // Buka Main dengan tab Menu (index 1) langsung terpilih
+                    navController.navigate(Screen.Main.withTab(1)) {
+                        popUpTo(Screen.Konfirmasi.route) { inclusive = true }
+                    }
+                }
             )
         }
 
@@ -120,7 +142,7 @@ fun AppNavGraph(
                 currentStatus = uiState.activeOrderStatus,
                 onConfirmDelivery = {
                     viewModel.confirmOrderDelivery()
-                    navController.navigate(Screen.Main.route) {
+                    navController.navigate(Screen.Main.BASE_ROUTE) {
                         popUpTo(Screen.StatusPesanan.route) { inclusive = true }
                     }
                 },

@@ -59,9 +59,9 @@ fun KonfirmasiScreen(
                     .size(240.dp)
                     .clip(RoundedCornerShape(16.dp))
             )
-            
+
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             Text(
                 text = "Pesanan Berhasil Dibuat!",
                 fontSize = 22.sp,
@@ -69,9 +69,9 @@ fun KonfirmasiScreen(
                 color = Color.Black,
                 textAlign = TextAlign.Center
             )
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             Text(
                 text = "Silakan bersantai sejenak, pesanan Anda akan segera disiapkan oleh koki kami.",
                 fontSize = 14.sp,
@@ -79,9 +79,10 @@ fun KonfirmasiScreen(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
-            
+
             Spacer(modifier = Modifier.height(40.dp))
-            
+
+            // Navigasi balik ke halaman Menu, bukan Beranda, agar user bisa langsung tambah pesanan lagi
             Button(
                 onClick = onBackToMenu,
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryRed),
@@ -91,7 +92,7 @@ fun KonfirmasiScreen(
                     .height(56.dp)
             ) {
                 Text(
-                    text = "Kembali ke Beranda",
+                    text = "Tambah Pesanan Lagi",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White

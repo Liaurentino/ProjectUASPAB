@@ -33,10 +33,12 @@ fun MainScreen(
     onNavigateToCheckout: () -> Unit,
     onNavigateToSettings: (String) -> Unit, // screen route
     onNavigateToStatusPesanan: () -> Unit,
+    initialTab: Int = 0,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var selectedTab by remember { mutableIntStateOf(0) }
+    // Tab awal mengikuti initialTab (misal dikirim dari KonfirmasiScreen agar langsung buka tab Menu)
+    var selectedTab by remember { mutableIntStateOf(initialTab) }
 
     val tabs = listOf(
         TabItem("Beranda", Icons.Default.Home),
@@ -80,7 +82,7 @@ fun MainScreen(
             )
             1 -> MenuScreen(
                 userName = uiState.userName,
-                menuItems = viewModel.menuList,
+                menuByCategory = viewModel.menuByCategory,
                 onAddToCart = { menuItem ->
                     viewModel.addToCart(menuItem)
                     onNavigateToCheckout()

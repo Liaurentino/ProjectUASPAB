@@ -34,6 +34,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -71,6 +72,7 @@ fun CheckoutScreen(
     onPlaceOrder: () -> Unit,
     onOrderConfirmed: () -> Unit,
     onBackClicked: () -> Unit,
+    onAddMoreMenu: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -204,7 +206,7 @@ fun CheckoutScreen(
                                     color = Color.Black
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
-                                
+
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
@@ -253,13 +255,38 @@ fun CheckoutScreen(
                     item { Spacer(modifier = Modifier.height(24.dp)) }
                 }
 
-                // Place Order Button Section at the bottom
-                Box(
+                // Tambah Menu + Place Order Button Section at the bottom
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color.White)
-                        .padding(24.dp)
+                        .padding(horizontal = 24.dp, vertical = 16.dp)
                 ) {
+                    // Tombol untuk balik ke Menu agar bisa nambah item lain sebelum pesan
+                    OutlinedButton(
+                        onClick = onAddMoreMenu,
+                        border = BorderStroke(1.dp, PrimaryRed),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Tambah Menu",
+                            tint = PrimaryRed,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Tambah Menu",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
                     Button(
                         onClick = {
                             onPlaceOrder()
@@ -401,7 +428,7 @@ fun CheckoutItemCard(
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
-            
+
             // Quantity Adjuster Controls
             Row(
                 verticalAlignment = Alignment.CenterVertically,

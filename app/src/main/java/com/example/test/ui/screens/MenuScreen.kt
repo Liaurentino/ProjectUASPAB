@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,9 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -59,15 +58,38 @@ private enum class MenuViewMode {
     GRID, LIST
 }
 
+private const val CATEGORY_ALL = "Semua"
+
+// Urutan kategori tetap, tidak ikut urutan acak dari Map
+private val CATEGORY_ORDER = listOf("Nasi", "Sate", "Sop", "Minuman")
+
 @Composable
 fun MenuScreen(
     userName: String,
-    menuItems: List<MenuItem>,
+    menuByCategory: Map<String, List<MenuItem>>,
     onAddToCart: (MenuItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     var viewMode by remember { mutableStateOf(MenuViewMode.LIST) }
+    var selectedCategory by remember { mutableStateOf(CATEGORY_ALL) }
+
+    // Urutkan kategori sesuai CATEGORY_ORDER, kategori lain (jika ada) ditaruh di akhir
+    val availableCategories = remember(menuByCategory) {
+        val known = CATEGORY_ORDER.filter { menuByCategory.containsKey(it) }
+        val unknown = menuByCategory.keys.filter { it !in CATEGORY_ORDER }
+        listOf(CATEGORY_ALL) + known + unknown
+    }
+
+    // Item yang ditampilkan sesuai chip yang dipilih
+    val displayedItems = remember(selectedCategory, menuByCategory) {
+        if (selectedCategory == CATEGORY_ALL) {
+            CATEGORY_ORDER.flatMap { menuByCategory[it].orEmpty() } +
+                    menuByCategory.filterKeys { it !in CATEGORY_ORDER }.values.flatten()
+        } else {
+            menuByCategory[selectedCategory].orEmpty()
+        }
+    }
 
     Column(
         modifier = modifier
@@ -115,15 +137,29 @@ fun MenuScreen(
             }
         }
 
-        // Menu Items - List atau Grid sesuai toggle
+        // Chip filter kategori (horizontal scroll)
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(availableCategories) { category ->
+                CategoryChip(
+                    label = category,
+                    isSelected = category == selectedCategory,
+                    onClick = { selectedCategory = category }
+                )
+            }
+        }
+
+        // Menu items sesuai kategori yang dipilih
         when (viewMode) {
             MenuViewMode.LIST -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 20.dp),
+                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(menuItems) { item ->
+                    items(displayedItems) { item ->
                         MenuCard(
                             menuItem = item,
                             context = context,
@@ -134,23 +170,63 @@ fun MenuScreen(
             }
 
             MenuViewMode.GRID -> {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
+                LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 20.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(menuItems) { item ->
-                        MenuGridCard(
-                            menuItem = item,
-                            context = context,
-                            onAddClicked = { onAddToCart(item) }
-                        )
+                    val rows = displayedItems.chunked(2)
+                    items(rows) { rowItems ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            rowItems.forEach { item ->
+                                MenuGridCard(
+                                    menuItem = item,
+                                    context = context,
+                                    onAddClicked = { onAddToCart(item) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                            if (rowItems.size == 1) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+/**
+ * Chip filter kategori, mirip pill filter di app McD.
+ */
+@Composable
+private fun CategoryChip(
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(if (isSelected) PrimaryRed else Color.White)
+            .border(
+                width = 1.dp,
+                color = if (isSelected) PrimaryRed else Color(0xFFE0E0E0),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = label,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = if (isSelected) Color.White else Color.DarkGray
+        )
     }
 }
 
@@ -212,10 +288,11 @@ private fun ToggleIconButton(
 fun MenuCard(
     menuItem: MenuItem,
     context: Context,
-    onAddClicked: () -> Unit
+    onAddClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         border = BorderStroke(1.dp, Color(0xFFEEEEEE)),
@@ -237,7 +314,6 @@ fun MenuCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Food details
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -276,7 +352,6 @@ fun MenuCard(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Price and Action Button
             Column(
                 horizontalAlignment = Alignment.End
             ) {
@@ -318,10 +393,11 @@ fun MenuCard(
 fun MenuGridCard(
     menuItem: MenuItem,
     context: Context,
-    onAddClicked: () -> Unit
+    onAddClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         border = BorderStroke(1.dp, Color(0xFFEEEEEE)),
@@ -402,10 +478,6 @@ fun MenuGridCard(
     }
 }
 
-/**
- * Komponen gambar menu yang dipakai bersama oleh List dan Grid card,
- * otomatis memilih AsyncImage (network URL) atau drawable lokal.
- */
 @Composable
 private fun MenuItemImage(
     menuItem: MenuItem,
