@@ -21,15 +21,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Payment
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -37,10 +31,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,19 +54,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.test.ui.components.ResourceHelper
-import com.example.test.ui.theme.PrimaryOrange
 import com.example.test.ui.theme.PrimaryRed
 import com.example.test.ui.theme.SuccessGreen
 
-import androidx.compose.runtime.*
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-
 fun PengaturanScreen(
     onNavigateToEditProfil: () -> Unit,
     onBackClicked: () -> Unit,
@@ -178,16 +171,17 @@ fun PengaturanScreen(
             AlertDialog(
                 onDismissRequest = { showHelpDialog = false },
                 title = { Text(LanguageManager.get("help_faq")) },
-                text = { Text("Silakan hubungi kami di support@dinein.com atau via telepon di (021) 555-0199 untuk bantuan lebih lanjut.") },
+                text = { Text(LanguageManager.get("help_content")) },
                 confirmButton = {
                     TextButton(onClick = { showHelpDialog = false }) {
-                        Text("Tutup", color = PrimaryRed)
+                        Text(LanguageManager.get("close"), color = PrimaryRed)
                     }
                 }
             )
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KeamananScreen(
@@ -197,7 +191,7 @@ fun KeamananScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Keamanan Akun", fontWeight = FontWeight.Bold) },
+                title = { Text(LanguageManager.get("keamanan_akun"), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClicked) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -222,11 +216,11 @@ fun KeamananScreen(
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 Column {
-                    SettingOptionItem(title = "Ganti Password", subtitle = "Terakhir diubah: 2 bulan lalu")
+                    SettingOptionItem(title = LanguageManager.get("ganti_password"), subtitle = LanguageManager.get("ganti_password_sub"))
                     Divider(color = Color(0xFFF5F5F5))
-                    SettingOptionItem(title = "Verifikasi 2 Langkah", subtitle = "Tingkatkan keamanan masuk")
+                    SettingOptionItem(title = LanguageManager.get("verifikasi_2"), subtitle = LanguageManager.get("verifikasi_2_sub"))
                     Divider(color = Color(0xFFF5F5F5))
-                    SettingOptionItem(title = "Perangkat Tertaut", subtitle = "Kelola ponsel & web login")
+                    SettingOptionItem(title = LanguageManager.get("perangkat"), subtitle = LanguageManager.get("perangkat_sub"))
                 }
             }
         }
@@ -246,7 +240,7 @@ fun MetodePembayaranScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Metode Pembayaran", fontWeight = FontWeight.Bold) },
+                title = { Text(LanguageManager.get("pembayaran_title"), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClicked) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -265,7 +259,7 @@ fun MetodePembayaranScreen(
                 .padding(24.dp)
         ) {
             Text(
-                text = "Pilih Metode Pembayaran Utama",
+                text = LanguageManager.get("pilih_pembayaran"),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -281,7 +275,7 @@ fun MetodePembayaranScreen(
                 Column {
                     PaymentMethodItem(
                         name = "E-Money",
-                        description = "OVO, GoPay, ShopeePay",
+                        description = LanguageManager.get("emoney_desc"),
                         iconRes = "iconemoney",
                         isSelected = currentMethod == "E-Money",
                         onClick = { onMethodSelected("E-Money") }
@@ -289,7 +283,7 @@ fun MetodePembayaranScreen(
                     Divider(color = Color(0xFFF5F5F5))
                     PaymentMethodItem(
                         name = "M-Banking",
-                        description = "Transfer Virtual Account Bank",
+                        description = LanguageManager.get("mbanking_desc"),
                         iconRes = "iconmbanking",
                         isSelected = currentMethod == "M-Banking",
                         onClick = { onMethodSelected("M-Banking") }
@@ -297,7 +291,7 @@ fun MetodePembayaranScreen(
                     Divider(color = Color(0xFFF5F5F5))
                     PaymentMethodItem(
                         name = "QRIS",
-                        description = "Scan kode QRIS instan",
+                        description = LanguageManager.get("qris_desc"),
                         iconRes = "iconqris",
                         isSelected = currentMethod == "QRIS",
                         onClick = { onMethodSelected("QRIS") }
@@ -319,7 +313,7 @@ fun LokasiRestoranScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Lokasi Restoran", fontWeight = FontWeight.Bold) },
+                title = { Text(LanguageManager.get("lokasi_title"), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClicked) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -377,18 +371,16 @@ fun LokasiRestoranScreen(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(20.dp)
-                ) {
+                Column(modifier = Modifier.padding(20.dp)) {
                     Text(
-                        text = "Dine In Resto - Cabang Thamrin",
+                        text = LanguageManager.get("resto_name"),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Jl. M.H. Thamrin No.12, Menteng, Kota Jakarta Pusat, DKI Jakarta 10310",
+                        text = LanguageManager.get("resto_address"),
                         fontSize = 13.sp,
                         color = Color.Gray,
                         lineHeight = 18.sp
@@ -401,12 +393,12 @@ fun LokasiRestoranScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column {
-                            Text(text = "Jam Buka", fontSize = 12.sp, color = Color.Gray)
-                            Text(text = "10.00 - 22.00 WIB", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
+                            Text(text = LanguageManager.get("jam_buka"), fontSize = 12.sp, color = Color.Gray)
+                            Text(text = LanguageManager.get("jam_buka_val"), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
                         }
                         Column {
-                            Text(text = "Telepon", fontSize = 12.sp, color = Color.Gray)
-                            Text(text = "(021) 555-0199", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
+                            Text(text = LanguageManager.get("telepon"), fontSize = 12.sp, color = Color.Gray)
+                            Text(text = LanguageManager.get("telepon_val"), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
                         }
                     }
                 }
@@ -426,7 +418,7 @@ fun TentangKamiScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Tentang Kami", fontWeight = FontWeight.Bold) },
+                title = { Text(LanguageManager.get("tentang_title"), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClicked) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -453,24 +445,10 @@ fun TentangKamiScreen(
                     .size(100.dp)
                     .clip(RoundedCornerShape(16.dp))
             )
-
             Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Dine In Resto",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-
-            Text(
-                text = "Version 1.0.0 (Premium Compose Edition)",
-                fontSize = 12.sp,
-                color = Color.Gray
-            )
-
+            Text(text = "Dine In Resto", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+            Text(text = "Version 1.0.0 (Premium Compose Edition)", fontSize = 12.sp, color = Color.Gray)
             Spacer(modifier = Modifier.height(24.dp))
-
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -478,7 +456,7 @@ fun TentangKamiScreen(
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 Text(
-                    text = "Dine In Resto adalah aplikasi pemesanan makanan berbasis mobile modern yang dirancang untuk memberikan kemudahan bagi pelanggan saat berkunjung atau memesan dari rumah. Dengan teknologi asli Jetpack Compose, kami menjamin performa super mulus dan desain UI yang elegan dan interaktif.",
+                    text = LanguageManager.get("tentang_desc"),
                     fontSize = 13.sp,
                     color = Color.DarkGray,
                     lineHeight = 20.sp,
@@ -503,9 +481,7 @@ fun SettingOptionItem(
             .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
             Text(text = title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Black)
             Text(text = subtitle, fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(top = 2.dp))
         }
@@ -531,9 +507,7 @@ fun SettingSwitchItem(
             .padding(horizontal = 20.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
             Text(text = title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Black)
             Text(text = subtitle, fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(top = 2.dp))
         }
@@ -574,15 +548,13 @@ fun PaymentMethodItem(
                 .clip(RoundedCornerShape(8.dp))
         )
         Spacer(modifier = Modifier.width(16.dp))
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
             Text(text = name, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Black)
             Text(text = description, fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(top = 2.dp))
         }
         if (isSelected) {
             Icon(
-                imageVector = Icons.Default.Settings, // placeholder or check
+                imageVector = Icons.Default.Settings,
                 contentDescription = "Selected",
                 tint = SuccessGreen,
                 modifier = Modifier.size(20.dp)

@@ -61,19 +61,19 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.example.test.ui.theme.PrimaryRed
-import java.io.File
 import java.io.ByteArrayOutputStream
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfilScreen(
     userName: String,
     userEmail: String,
-    userPhone: String,
-    userLocation: String,
+    userPhone: String = "",
+    userLocation: String = "",
     profileImageUrl: String,
     isUploadingImage: Boolean,
-    onSave: (name: String, phone: String, address: String) -> Unit,
+    onSave: (name: String, phone: String, address: String) -> Unit = { _, _, _ -> },
     onUploadImage: (imageBytes: ByteArray, fileExtension: String) -> Unit,
     onBackClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -82,14 +82,10 @@ fun EditProfilScreen(
     var editedName by remember { mutableStateOf(userName) }
     var editedPhone by remember { mutableStateOf(userPhone) }
     var editedAddress by remember { mutableStateOf(userLocation) }
-
-    // Uri foto yang baru dipilih (gallery atau kamera), dipakai untuk preview sebelum/selagi upload
     var localPreviewUri by remember { mutableStateOf<Uri?>(null) }
     var showImageSourceDialog by remember { mutableStateOf(false) }
     var cameraTempUri by remember { mutableStateOf<Uri?>(null) }
-    var pendingCameraPermission by remember { mutableStateOf(false) }
 
-    // ---- Launcher: pilih dari Gallery ----
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -99,7 +95,6 @@ fun EditProfilScreen(
         }
     }
 
-    // ---- Launcher: ambil foto dari Camera ----
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success: Boolean ->
@@ -109,7 +104,6 @@ fun EditProfilScreen(
         }
     }
 
-    // ---- Launcher: minta izin kamera, baru buka kamera kalau granted ----
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted: Boolean ->
@@ -118,7 +112,7 @@ fun EditProfilScreen(
             cameraTempUri = newUri
             cameraLauncher.launch(newUri)
         } else {
-            Toast.makeText(context, "Izin kamera dibutuhkan untuk mengambil foto", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, LanguageManager.get("camera_permission_denied"), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -221,13 +215,13 @@ fun EditProfilScreen(
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    EditField(label = LanguageManager.get("name"), value = editedName, onValueChange = { editedName = it }, icon = Icons.Default.Person, placeholder = "Masukkan nama lengkap")
+                    EditField(label = LanguageManager.get("name"), value = editedName, onValueChange = { editedName = it }, icon = Icons.Default.Person, placeholder = LanguageManager.get("name_placeholder"))
                     Spacer(modifier = Modifier.height(16.dp))
                     EditField(label = "Email", value = userEmail, onValueChange = {}, icon = Icons.Default.Email, placeholder = "Email", enabled = false)
                     Spacer(modifier = Modifier.height(16.dp))
-                    EditField(label = LanguageManager.get("phone"), value = editedPhone, onValueChange = { editedPhone = it }, icon = Icons.Default.Phone, placeholder = "Contoh: +62 812 3456 7890")
+                    EditField(label = LanguageManager.get("phone"), value = editedPhone, onValueChange = { editedPhone = it }, icon = Icons.Default.Phone, placeholder = LanguageManager.get("phone_placeholder"))
                     Spacer(modifier = Modifier.height(16.dp))
-                    EditField(label = LanguageManager.get("address"), value = editedAddress, onValueChange = { editedAddress = it }, icon = Icons.Default.LocationOn, placeholder = "Masukkan alamat Anda")
+                    EditField(label = LanguageManager.get("address"), value = editedAddress, onValueChange = { editedAddress = it }, icon = Icons.Default.LocationOn, placeholder = LanguageManager.get("address_placeholder"))
                 }
             }
 
@@ -252,20 +246,14 @@ fun EditProfilScreen(
         }
     }
 
-    // Dialog pilihan sumber foto: Kamera atau Galeri
     if (showImageSourceDialog) {
-        val isEn = LanguageManager.currentLanguage == "en"
-        val dialogTitle = if (isEn) "Change Profile Picture" else "Ganti Foto Profil"
-        val cameraText = if (isEn) "Take from Camera" else "Ambil dari Kamera"
-        val galleryText = if (isEn) "Choose from Gallery" else "Pilih dari Galeri"
-
         AlertDialog(
             onDismissRequest = { showImageSourceDialog = false },
-            title = { Text(dialogTitle) },
+            title = { Text(LanguageManager.get("change_photo_title")) },
             text = {
                 Column {
                     Text(
-                        text = cameraText,
+                        text = LanguageManager.get("camera"),
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
@@ -275,7 +263,7 @@ fun EditProfilScreen(
                             .padding(vertical = 12.dp)
                     )
                     Text(
-                        text = galleryText,
+                        text = LanguageManager.get("gallery"),
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
@@ -295,22 +283,12 @@ fun EditProfilScreen(
     }
 }
 
-/**
- * Membuat Uri sementara di cache folder (lewat FileProvider) untuk menampung hasil foto kamera.
- */
 private fun createCameraImageUri(context: Context): Uri {
     val imagesDir = File(context.cacheDir, "images").apply { mkdirs() }
     val imageFile = File(imagesDir, "profile_${System.currentTimeMillis()}.jpg")
-    return FileProvider.getUriForFile(
-        context,
-        "${context.packageName}.fileprovider",
-        imageFile
-    )
+    return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", imageFile)
 }
 
-/**
- * Membaca bytes dari Uri (baik dari galeri maupun kamera) lalu memanggil callback upload.
- */
 private fun uploadImageFromUri(
     context: Context,
     uri: Uri,
@@ -319,22 +297,17 @@ private fun uploadImageFromUri(
     try {
         val inputStream = context.contentResolver.openInputStream(uri)
         val outputStream = ByteArrayOutputStream()
-        inputStream?.use { input ->
-            input.copyTo(outputStream)
-        }
+        inputStream?.use { it.copyTo(outputStream) }
         val bytes = outputStream.toByteArray()
-
-        // Coba deteksi ekstensi dari mime type, default ke jpg
         val mimeType = context.contentResolver.getType(uri)
         val extension = when {
             mimeType?.contains("png") == true -> "png"
             mimeType?.contains("webp") == true -> "webp"
             else -> "jpg"
         }
-
         onUploadImage(bytes, extension)
     } catch (e: Exception) {
-        Toast.makeText(context, "Gagal membaca gambar: ${e.message}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "${LanguageManager.get("gagal_baca_gambar")}: ${e.message}", Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -358,7 +331,6 @@ private fun EditField(
         },
         shape = RoundedCornerShape(10.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            // Warna teks input selalu hitam (mencegah putih di dark mode)
             focusedTextColor = Color(0xFF1A1A1A),
             unfocusedTextColor = Color(0xFF1A1A1A),
             disabledTextColor = Color(0xFF757575),
