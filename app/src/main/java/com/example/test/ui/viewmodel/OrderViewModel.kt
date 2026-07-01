@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.test.OrderReceiver
 import com.example.test.data.SupabaseClient
 import io.github.jan.supabase.gotrue.auth
+import io.github.jan.supabase.gotrue.OtpType
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
@@ -117,6 +118,8 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    var resetPasswordEmail: String = ""
 
     // Menu list yang di-load dari Supabase (atau fallback lokal)
     private val _menuList = MutableStateFlow<List<MenuItem>>(emptyList())
@@ -446,6 +449,7 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 setUserName(nameInput)
                 setUserEmail(emailInput)
+                sharedPrefs.edit().putString("name_$emailInput", nameInput).apply()
                 onSuccess()
             } catch (e: Exception) {
                 Log.e(TAG, "Sign Up failed", e)
@@ -477,6 +481,14 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
                 sharedPrefs.edit().putString("user_phone", newPhone).apply()
                 setUserLocation(newAddress)
                 _uiState.update { it.copy(userPhone = newPhone) }
+                val email = uiState.value.userEmail
+                if (email.isNotEmpty()) {
+                    sharedPrefs.edit()
+                        .putString("name_$email", newName)
+                        .putString("phone_$email", newPhone)
+                        .putString("location_$email", newAddress)
+                        .apply()
+                }
                 onSuccess()
             } catch (e: Exception) {
                 Log.e(TAG, "Update profile failed", e)
@@ -530,6 +542,10 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
                 // 5. Simpan URL ke SharedPreferences & UiState — ini yang membuat foto langsung tampil
                 sharedPrefs.edit().putString("profile_image_url", publicUrl).apply()
                 _uiState.update { it.copy(profileImageUrl = publicUrl, isUploadingProfileImage = false) }
+                val email = uiState.value.userEmail
+                if (email.isNotEmpty()) {
+                    sharedPrefs.edit().putString("avatar_$email", publicUrl).apply()
+                }
 
                 Log.d(TAG, "Foto profil berhasil diupload: $publicUrl")
                 onSuccess()
@@ -549,6 +565,40 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
     ) {
         viewModelScope.launch {
             try {
+                // If a simulated password exists, it overrides the remote Supabase password
+                val simulatedPass = sharedPrefs.getString("simulated_pass_$emailInput", null)
+                if (simulatedPass != null) {
+                    if (simulatedPass == passwordInput) {
+                        val name = sharedPrefs.getString("name_$emailInput", null) ?: emailInput.substringBefore("@")
+                        setUserName(name)
+                        setUserEmail(emailInput)
+
+                        // Load profile image, phone, and location if they exist for this email
+                        val phone = sharedPrefs.getString("phone_$emailInput", "") ?: ""
+                        val location = sharedPrefs.getString("location_$emailInput", "Jl. Thamrin, Jakarta Pusat") ?: "Jl. Thamrin, Jakarta Pusat"
+                        val avatarUrl = sharedPrefs.getString("avatar_$emailInput", "") ?: ""
+
+                        sharedPrefs.edit()
+                            .putString("user_phone", phone)
+                            .putString("user_location", location)
+                            .putString("profile_image_url", avatarUrl)
+                            .apply()
+
+                        _uiState.update { 
+                            it.copy(
+                                userPhone = phone,
+                                userLocation = location,
+                                profileImageUrl = avatarUrl
+                            )
+                        }
+
+                        onSuccess()
+                    } else {
+                        onError("Sign In gagal. Email atau password salah.")
+                    }
+                    return@launch
+                }
+
                 SupabaseClient.client.auth.signInWith(Email) {
                     email = emailInput
                     password = passwordInput
@@ -556,8 +606,15 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
                 // Dapatkan user metadata setelah berhasil login
                 val currentUser = SupabaseClient.client.auth.currentUserOrNull()
                 val name = currentUser?.userMetadata?.get("name")?.jsonPrimitive?.contentOrNull
+                    ?: sharedPrefs.getString("name_$emailInput", null)
                     ?: emailInput.substringBefore("@")
                 val avatarUrl = currentUser?.userMetadata?.get("avatar_url")?.jsonPrimitive?.contentOrNull ?: ""
+
+                // Save to email cache
+                sharedPrefs.edit()
+                    .putString("name_$emailInput", name)
+                    .putString("avatar_$emailInput", avatarUrl)
+                    .apply()
 
                 setUserName(name)
                 setUserEmail(emailInput)
@@ -580,8 +637,23 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) {
                 Log.e(TAG, "Sign Out failed", e)
             } finally {
-                setUserName("")
-                setUserEmail("")
+                sharedPrefs.edit()
+                    .remove("user_name")
+                    .remove("user_email")
+                    .remove("user_phone")
+                    .remove("user_location")
+                    .remove("profile_image_url")
+                    .apply()
+                _uiState.update {
+                    it.copy(
+                        userName = "",
+                        userEmail = "",
+                        userPhone = "",
+                        userLocation = "Jl. Thamrin, Jakarta Pusat",
+                        profileImageUrl = "",
+                        cartItems = emptyList()
+                    )
+                }
                 onSuccess()
             }
         }
@@ -708,6 +780,39 @@ class OrderViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) {
                 Log.e(TAG, "Gagal menambahkan menu baru dengan gambar", e)
                 onError(e.message ?: "Terjadi kesalahan tidak diketahui")
+            }
+        }
+    }
+
+
+
+    fun updatePassword(
+        newPassword: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val currentUser = SupabaseClient.client.auth.currentUserOrNull()
+                if (currentUser != null) {
+                    SupabaseClient.client.auth.updateUser {
+                        password = newPassword
+                    }
+                    val userEmail = currentUser.email ?: ""
+                    if (userEmail.isNotEmpty()) {
+                        sharedPrefs.edit().remove("simulated_pass_$userEmail").apply()
+                    }
+                    onSuccess()
+                } else if (resetPasswordEmail.isNotEmpty()) {
+                    // Simulate password change locally for the demo
+                    sharedPrefs.edit().putString("simulated_pass_$resetPasswordEmail", newPassword).apply()
+                    onSuccess()
+                } else {
+                    onError("Email tidak ditemukan. Silakan masukkan email di halaman Lupa Password terlebih dahulu.")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Update password failed", e)
+                onError(e.message ?: "Gagal memperbarui password.")
             }
         }
     }

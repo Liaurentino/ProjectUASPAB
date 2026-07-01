@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -62,6 +63,7 @@ fun SignInScreen(
     viewModel: OrderViewModel,
     onSignInSuccess: () -> Unit,
     onNavigateToSignUp: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -184,7 +186,23 @@ fun SignInScreen(
                 enabled = !isLoading && !isGoogleLoading
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Forgot Password link
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Text(
+                    text = "Lupa Password?",
+                    color = PrimaryOrange,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 13.sp,
+                    modifier = Modifier.clickable { onNavigateToForgotPassword() }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Sign In Button
             Button(

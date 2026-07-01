@@ -22,6 +22,9 @@ import com.example.test.ui.screens.SplashScreen
 import com.example.test.ui.screens.StatusPesananScreen
 import com.example.test.ui.screens.TentangKamiScreen
 import com.example.test.ui.screens.EditProfilScreen
+import com.example.test.ui.screens.ForgotPasswordScreen
+import com.example.test.ui.screens.ChangePasswordScreen
+import io.github.jan.supabase.gotrue.auth
 import com.example.test.ui.viewmodel.OrderViewModel
 
 @Composable
@@ -66,6 +69,9 @@ fun AppNavGraph(
                     navController.navigate(Screen.SignUp.route) {
                         popUpTo(Screen.SignIn.route) { inclusive = true }
                     }
+                },
+                onNavigateToForgotPassword = {
+                    navController.navigate(Screen.ForgotPassword.route)
                 }
             )
         }
@@ -101,7 +107,14 @@ fun AppNavGraph(
                 initialTab = initialTab,
                 onNavigateToCheckout = { navController.navigate(Screen.Checkout.route) },
                 onNavigateToSettings = { route -> navController.navigate(route) },
-                onNavigateToStatusPesanan = { navController.navigate(Screen.StatusPesanan.route) }
+                onNavigateToStatusPesanan = { navController.navigate(Screen.StatusPesanan.route) },
+                onLogout = {
+                    viewModel.signOut {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                }
             )
         }
 
@@ -148,7 +161,46 @@ fun AppNavGraph(
         }
 
         composable(Screen.Keamanan.route) {
-            KeamananScreen(onBackClicked = { navController.popBackStack() })
+            KeamananScreen(
+                onBackClicked = { navController.popBackStack() },
+                onNavigateToChangePassword = {
+                    navController.navigate(Screen.ChangePassword.route)
+                }
+            )
+        }
+
+        composable(Screen.ForgotPassword.route) {
+            ForgotPasswordScreen(
+                viewModel = viewModel,
+                onRedirectToChangePassword = {
+                    navController.navigate(Screen.ChangePassword.route) {
+                        popUpTo(Screen.ForgotPassword.route) { inclusive = true }
+                    }
+                },
+                onBackClicked = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.ChangePassword.route) {
+            val cameFromReset = viewModel.resetPasswordEmail.isNotEmpty()
+            val isUserLoggedIn = com.example.test.data.SupabaseClient.client.auth.currentUserOrNull() != null && !cameFromReset
+            ChangePasswordScreen(
+                viewModel = viewModel,
+                isUserLoggedIn = isUserLoggedIn,
+                onSuccessChanged = {
+                    if (cameFromReset) {
+                        viewModel.signOut {
+                            viewModel.resetPasswordEmail = ""
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    } else {
+                        navController.popBackStack()
+                    }
+                },
+                onBackClicked = { navController.popBackStack() }
+            )
         }
 
         composable(Screen.MetodePembayaran.route) {

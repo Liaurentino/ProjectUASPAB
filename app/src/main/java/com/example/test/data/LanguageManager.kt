@@ -84,6 +84,7 @@ object LanguageManager {
             "pembayaran" -> if (isEn) "Payment Method" else "Metode Pembayaran"
             "lokasi" -> if (isEn) "Restaurant Location" else "Lokasi Restoran"
             "tentang" -> if (isEn) "About Us" else "Tentang Kami"
+            "logout" -> if (isEn) "Logout" else "Keluar"
 
             // Edit Profil Screen
             "edit_profil" -> if (isEn) "Edit Profile" else "Edit Profil"

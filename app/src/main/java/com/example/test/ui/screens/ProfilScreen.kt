@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -54,6 +55,7 @@ fun ProfilScreen(
     profileImageUrl: String = "",
     onNavigateToEditProfil: () -> Unit,
     onNavigateToSettings: (String) -> Unit,
+    onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -167,6 +169,16 @@ fun ProfilScreen(
                     icon = Icons.Default.Info,
                     onClick = { onNavigateToSettings("tentang_kami") }
                 )
+                Divider(color = Color(0xFFF0F0F0), modifier = Modifier.padding(horizontal = 16.dp))
+                
+                ProfileOptionRow(
+                    title = LanguageManager.get("logout"),
+                    icon = Icons.Default.ExitToApp,
+                    onClick = onLogout,
+                    textColor = PrimaryRed,
+                    iconColor = PrimaryRed,
+                    showArrow = false
+                )
             }
         }
     }
@@ -176,7 +188,10 @@ fun ProfilScreen(
 fun ProfileOptionRow(
     title: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    textColor: Color = Color.Black,
+    iconColor: Color = PrimaryRed,
+    showArrow: Boolean = true
 ) {
     Row(
         modifier = Modifier
@@ -188,7 +203,7 @@ fun ProfileOptionRow(
         Icon(
             imageVector = icon,
             contentDescription = title,
-            tint = PrimaryRed,
+            tint = iconColor,
             modifier = Modifier.size(22.dp)
         )
         Spacer(modifier = Modifier.width(16.dp))
@@ -196,14 +211,16 @@ fun ProfileOptionRow(
             text = title,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
-            color = Color.Black,
+            color = textColor,
             modifier = Modifier.weight(1f)
         )
-        Icon(
-            imageVector = Icons.Default.ArrowForwardIos,
-            contentDescription = "Forward Arrow",
-            tint = Color.LightGray,
-            modifier = Modifier.size(12.dp)
-        )
+        if (showArrow) {
+            Icon(
+                imageVector = Icons.Default.ArrowForwardIos,
+                contentDescription = "Forward Arrow",
+                tint = Color.LightGray,
+                modifier = Modifier.size(12.dp)
+            )
+        }
     }
 }

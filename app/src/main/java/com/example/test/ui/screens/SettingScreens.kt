@@ -81,7 +81,11 @@ fun PengaturanScreen(
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = PrimaryRed,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         },
         modifier = modifier
@@ -186,6 +190,7 @@ fun PengaturanScreen(
 @Composable
 fun KeamananScreen(
     onBackClicked: () -> Unit,
+    onNavigateToChangePassword: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -197,7 +202,11 @@ fun KeamananScreen(
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = PrimaryRed,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         },
         modifier = modifier
@@ -216,7 +225,11 @@ fun KeamananScreen(
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 Column {
-                    SettingOptionItem(title = LanguageManager.get("ganti_password"), subtitle = LanguageManager.get("ganti_password_sub"))
+                    SettingOptionItem(
+                        title = LanguageManager.get("ganti_password"),
+                        subtitle = LanguageManager.get("ganti_password_sub"),
+                        onClick = onNavigateToChangePassword
+                    )
                     Divider(color = Color(0xFFF5F5F5))
                     SettingOptionItem(title = LanguageManager.get("verifikasi_2"), subtitle = LanguageManager.get("verifikasi_2_sub"))
                     Divider(color = Color(0xFFF5F5F5))
@@ -246,7 +259,11 @@ fun MetodePembayaranScreen(
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = PrimaryRed,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         },
         modifier = modifier
@@ -319,7 +336,11 @@ fun LokasiRestoranScreen(
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = PrimaryRed,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         },
         modifier = modifier
@@ -424,7 +445,11 @@ fun TentangKamiScreen(
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = PrimaryRed,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         },
         modifier = modifier

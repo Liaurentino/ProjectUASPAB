@@ -87,7 +87,7 @@ fun LoginScreen(
             )
 
             Text(
-                text = "Dine In Resto",
+                text = "Dine Terminal",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,

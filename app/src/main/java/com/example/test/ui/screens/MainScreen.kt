@@ -36,6 +36,7 @@ fun MainScreen(
     onNavigateToCheckout: () -> Unit,
     onNavigateToSettings: (String) -> Unit, // screen route
     onNavigateToStatusPesanan: () -> Unit,
+    onLogout: () -> Unit,
     initialTab: Int = 0,
     modifier: Modifier = Modifier
 ) {
@@ -111,6 +112,7 @@ fun MainScreen(
                 profileImageUrl = uiState.profileImageUrl,
                 onNavigateToEditProfil = { onNavigateToSettings(Screen.EditProfil.route) },
                 onNavigateToSettings = onNavigateToSettings,
+                onLogout = onLogout,
                 modifier = innerModifier
             )
         }
